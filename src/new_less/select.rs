@@ -137,7 +137,7 @@ impl NewSelector {
       fileinfo,
     };
     if let Some(Value::String(content)) = map.get("content") {
-      select.charlist = content.tocharlist();
+      select.charlist = content.to_char_vec();
     } else {
       return Err(format!("deserializer NewSelector has error -> charlist is empty!"));
     }
@@ -247,7 +247,7 @@ impl NewSelector {
       while index < new_list.len() {
         let current = new_list.get_mut(index).unwrap();
         if let SelectParadigm::SelectWrap(selector_txt) = current {
-          let list = selector_txt.to_string().tocharlist();
+          let list = selector_txt.to_string().to_char_vec();
           let char = list.get(0).unwrap();
           if *char == '.' {
             let key = list[1..list.len()].to_vec().poly();
@@ -266,7 +266,7 @@ impl NewSelector {
         };
         // 添加 :global(xx) 的索引位置
         if let SelectParadigm::SelectWrap(selector_txt) = current {
-          let list = selector_txt.to_string().tocharlist();
+          let list = selector_txt.to_string().to_char_vec();
           if list.get(0) == Some(&'(') && list.get(list.len() - 1) == Some(&')') {
             if let Some(SelectParadigm::SelectWrap(prev_selector_txt)) = prev {
               if prev_selector_txt == ":global" {
@@ -283,7 +283,7 @@ impl NewSelector {
         let clousure_warp_index = handle_index - index;
         let global_warp_index = handle_index - index - 1;
         if let SelectParadigm::SelectWrap(clousure_warp) = new_list.get_mut(clousure_warp_index).unwrap() {
-          let list = clousure_warp.to_string().tocharlist();
+          let list = clousure_warp.to_string().to_char_vec();
           *clousure_warp = list[1..list.len() - 1].to_vec().poly();
         }
         new_list.remove(global_warp_index);
@@ -989,7 +989,7 @@ impl NewSelector {
         if let SelectVarText::Txt(t) = tt {
           new_content += &t;
         } else if let SelectVarText::Var(v) = tt {
-          let val = v.tocharlist()[2..v.len() - 1].to_vec().poly();
+          let val = v.to_char_vec()[2..v.len() - 1].to_vec().poly();
           let var_ident = format!("@{}", val);
           let var_node_value = self.get_var_by_key(
             var_ident.as_str(),
@@ -1000,7 +1000,7 @@ impl NewSelector {
           new_content += &var_node_value.code_gen()?;
         }
       }
-      self.charlist = new_content.tocharlist();
+      self.charlist = new_content.to_char_vec();
     }
 
     Ok(())

@@ -11,7 +11,7 @@ fn test_media_parse() {
   ];
   let mut haserror = 0;
   demo_select_list.into_iter().for_each(|tt| {
-    match MediaQuery::new(tt.tocharlist(), None, None, None) {
+    match MediaQuery::new(tt.to_char_vec(), None, None, None) {
       HandleResult::Success(obj) => {
         haserror += 0;
         println!("{:#?}", obj);
@@ -35,7 +35,7 @@ fn test_media_error_parse() {
     r#""#.to_string(),
   ];
   demo_select_list.into_iter().for_each(|tt| {
-    match MediaQuery::new(tt.tocharlist(), None, None, None) {
+    match MediaQuery::new(tt.to_char_vec(), None, None, None) {
       HandleResult::Success(_) => {
         haserror += 1;
       }

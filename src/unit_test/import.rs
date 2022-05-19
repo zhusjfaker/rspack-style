@@ -18,7 +18,7 @@ fn test_import_parse() {
   let mut haserror = 0;
   import_list.into_iter().for_each(|tt| {
     match ImportNode::new(
-      tt.tocharlist(),
+      tt.to_char_vec(),
       None,
       None,
       None,
@@ -49,7 +49,7 @@ fn test_import_error_parse() {
   let import_list = vec![r#"@import './a.less";"#.to_string()];
   import_list.into_iter().for_each(|tt| {
     match ImportNode::new(
-      tt.tocharlist(),
+      tt.to_char_vec(),
       None,
       None,
       None,

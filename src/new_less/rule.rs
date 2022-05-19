@@ -132,7 +132,7 @@ impl RuleNode {
       context: context.clone(),
     };
     if let Some(Value::String(content)) = map.get("content") {
-      rule_node.origin_charlist = content.tocharlist();
+      rule_node.origin_charlist = content.to_char_vec();
     } else {
       return Err(format!(
         "deserializer RuleNode has error -> content is empty!"

@@ -91,7 +91,7 @@ impl ValueNode {
       word_ident_list: vec![],
     };
     if let Some(Value::String(content)) = map.get("content") {
-      obj.charlist = content.tocharlist();
+      obj.charlist = content.to_char_vec();
     } else {
       return Err(format!("deserializer ValueNode has error -> content is empty!"));
     }
@@ -223,8 +223,8 @@ impl ValueNode {
       return Err(self.error_msg(start));
     }
     if (value.len() > 1
-      && *value.tocharlist().get(0).unwrap() == keyword
-      && *value.tocharlist().get(value.len() - 1).unwrap() != keyword)
+      && *value.to_char_vec().get(0).unwrap() == keyword
+      && *value.to_char_vec().get(value.len() - 1).unwrap() != keyword)
       || value.len() == 1
     {
       return Err(format!("{} is not closure", self.charlist.poly()));

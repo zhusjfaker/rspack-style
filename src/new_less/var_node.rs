@@ -120,7 +120,7 @@ impl VarNode {
       context,
     };
     if let Some(Value::String(content)) = map.get("content") {
-      obj.charlist = content.tocharlist();
+      obj.charlist = content.to_char_vec();
     } else {
       return Err(format!("deserializer VarNode has error -> content is empty!"));
     }

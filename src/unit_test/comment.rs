@@ -31,7 +31,7 @@ fn test_skip_comment() {
   let start_record = wastetime("test_less");
   // 处理过程
   let filepath = path_resolve("assets/demo.less");
-  let conetnt = readfile(&filepath).unwrap().tocharlist();
+  let conetnt = readfile(&filepath).unwrap().to_char_vec();
   let mut i = 0;
   let mut skipcall = skip_comment();
   while i < conetnt.len() {

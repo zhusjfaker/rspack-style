@@ -242,7 +242,7 @@ impl Context {
       obj.origin_txt_content = origin_txt_content.to_string();
       obj.hash_perfix =
         StyleHash::generate_css_module_hash(&obj.disk_location, &origin_txt_content);
-      obj.origin_charlist = obj.origin_txt_content.tocharlist();
+      obj.origin_charlist = obj.origin_txt_content.to_char_vec();
     } else {
       return Err(format!(
         "deserializer FileNode -> origin_txt_content is empty!"

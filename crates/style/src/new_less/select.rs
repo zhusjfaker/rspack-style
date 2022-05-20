@@ -161,7 +161,7 @@ impl NewSelector {
       fileinfo,
     };
     if let Some(Value::String(content)) = map.get("content") {
-      select.charlist = content.tocharlist();
+      select.charlist = content.to_char_vec();
     } else {
       return Err(format!(
         "deserializer NewSelector has error -> charlist is empty!"

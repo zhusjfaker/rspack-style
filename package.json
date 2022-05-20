@@ -2,32 +2,19 @@
   "name": "rspack_style_lib",
   "private": true,
   "version": "0.0.1",
-  "description": "* About Less compiler is written in rust based on Less.js",
-  "main": "index.js",
-  "scripts": {
-    "test": "npx ts-node tslib/index.ts --content '.a{width:10px;}'",
-    "test:resolve": "npx ts-node-dev tslib/resolve.ts",
-    "test:plugin": "npx ts-node tslib/index.ts",
-    "build": "npx ts-node tslib/build.ts"
-  },
+  "description": "* About style compiler is written in rust",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhusjfaker/rust-less.git"
+    "url": "git+https://github.com/speedy-js/rspack-style.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/zhusjfaker/rust-less/issues"
+    "url": "https://github.com/speedy-js/rspack-style/issues"
   },
-  "homepage": "https://github.com/zhusjfaker/rust-less#readme",
-  "devDependencies": {
-    "esbuild": "0.14.39",
-    "less": "4.1.2",
-    "typescript": "4.6.4",
-    "ts-node-dev": "1.1.8",
-    "@types/less": "3.0.3",
-    "@types/node": "17.0.32",
-    "ts-node": "10.7.0"
-  }
+  "homepage": "https://github.com/speedy-js/rspack-style#readme",
+  "workspaces": [
+    "crates/resolver"
+  ]
 }

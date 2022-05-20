@@ -1,12 +1,7 @@
-[package]
-name = "rspack_style"
-version = "0.1.2"
-edition = "2021"
-license = "MIT"
-repository = "https://github.com/zhusjfaker/rust-less.git"
-keywords = ["style", "less", "css", "rust-toolkit"]
-readme = "readme.md"
-description = "a rust toolkit bundled for front-end style files"
+[workspace]
+members = [
+  "./crates/*",
+]
 
 [profile.bench]
 debug = true
@@ -21,19 +16,3 @@ panic = 'unwind'
 incremental = false
 codegen-units = 16
 rpath = false
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-regex = "1.5.4"
-serde = { version = "1.0.133", features = ["derive", "rc"] }
-serde_json = "1.0.74"
-fasteval = "0.2.4"
-uuid = { version = "0.8", features = ["serde", "v4"] }
-strum = { version = "0.23", features = ["derive"] }
-iocutil = "0.1"
-
-
-[dev-dependencies]
-derivative = "2.2.0"
-tokio = { version = "1.15.0", features = ["full"] }
-futures = "0.3.19"

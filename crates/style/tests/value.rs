@@ -1,5 +1,5 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::value::ValueNode;
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::value::ValueNode;
 
 #[test]
 fn test_value_parse() {

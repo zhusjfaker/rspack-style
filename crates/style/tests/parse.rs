@@ -1,6 +1,6 @@
-use crate::extend::time::wastetime;
-use crate::new_less::applicationn::Application;
-use crate::new_less::file::path_resolve;
+use rspack_style::extend::time::wastetime;
+use rspack_style::new_less::applicationn::Application;
+use rspack_style::new_less::file::path_resolve;
 
 #[test]
 fn test_less_parse() {

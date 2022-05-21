@@ -1,6 +1,6 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::media::MediaQuery;
-use crate::new_less::var::HandleResult;
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::media::MediaQuery;
+use rspack_style::new_less::var::HandleResult;
 
 #[test]
 fn test_media_parse() {

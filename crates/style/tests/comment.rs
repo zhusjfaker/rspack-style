@@ -1,9 +1,9 @@
-use crate::extend::string::StringExtend;
-use crate::extend::time::wastetime;
-use crate::extend::vec_str::VecCharOptionalExtend;
-use crate::new_less::applicationn::Application;
-use crate::new_less::comment::{skip_comment, Comment};
-use crate::new_less::file::{path_resolve, readfile};
+use rspack_style::extend::string::StringExtend;
+use rspack_style::extend::time::wastetime;
+use rspack_style::extend::vec_str::VecCharOptionalExtend;
+use rspack_style::new_less::applicationn::Application;
+use rspack_style::new_less::comment::{skip_comment, Comment};
+use rspack_style::new_less::file::{path_resolve, readfile};
 
 #[test]
 fn test_comment_remove() {

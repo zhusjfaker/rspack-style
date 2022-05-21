@@ -1,6 +1,6 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::applicationn::Application;
-use crate::new_less::file::path_resolve;
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::applicationn::Application;
+use rspack_style::new_less::file::path_resolve;
 
 #[test]
 fn test_arco_pro_1_less() {

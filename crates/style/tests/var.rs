@@ -1,7 +1,7 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::context::Context;
-use crate::new_less::var::HandleResult;
-use crate::new_less::var_node::VarNode;
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::context::Context;
+use rspack_style::new_less::var::HandleResult;
+use rspack_style::new_less::var_node::VarNode;
 
 #[test]
 fn test_var_parse() {

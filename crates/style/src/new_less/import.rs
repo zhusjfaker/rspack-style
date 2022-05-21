@@ -107,7 +107,7 @@ impl ImportNode {
   ) -> Result<Self, String> {
     let mut obj = Self {
       loc: None,
-      map: LocMap::new(&vec![]),
+      map: LocMap::new(&[]),
       parent,
       fileinfo,
       charlist: vec![],
@@ -117,22 +117,18 @@ impl ImportNode {
     if let Some(Value::String(content)) = map.get("content") {
       obj.charlist = content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer ImportNode has error -> content is empty!"
-      ));
+      return Err("deserializer ImportNode has error -> content is empty!".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       obj.loc = Some(Loc::deserializer(loc));
-      obj.map = LocMap::merge(&obj.loc.as_ref().unwrap(), &obj.charlist).0;
+      obj.map = LocMap::merge(obj.loc.as_ref().unwrap(), &obj.charlist).0;
     } else {
       obj.map = LocMap::new(&obj.charlist);
     }
     if let Some(Value::String(path)) = map.get("path") {
       obj.parse_hook_url = path.to_string();
     } else {
-      return Err(format!(
-        "deserializer ImportNode has error -> parse_hook_url is empty!"
-      ));
+      return Err("deserializer ImportNode has error -> parse_hook_url is empty!".to_string());
     }
     Ok(obj)
   }
@@ -234,8 +230,8 @@ impl ImportNode {
         self.parse_hook_url = file_path.clone();
       }
       let (abs_path, _file_content) = FileInfo::resolve(file_path, &include_path)?;
-      let node = FileNode::create_disklocation_parse(abs_path.clone(), self.context.clone())?;
-      importfiles.push(node.info.clone());
+      let node = FileNode::create_disklocation_parse(abs_path, self.context.clone())?;
+      importfiles.push(node.info);
     }
     Ok(())
   }

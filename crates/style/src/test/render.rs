@@ -15,6 +15,134 @@ fn test_less_render() {
 }
 
 #[test]
+fn test_css_render_content() {
+  let filepath = "/layout.module.less";
+  let content = r#"
+.layout {
+  width: 100%;
+  height: 100%;
+}
+.layout-navbar {
+  position: fixed;
+  width: 100%;
+  min-width: 1100px;
+  top: 0;
+  left: 0;
+  height: 60px;
+  z-index: 100;
+}
+.layout-navbar-hidden {
+  height: 0;
+}
+.layout-sider {
+  position: fixed;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  box-sizing: border-box;
+}
+.layout-sider ::-webkit-scrollbar {
+  width: 12px;
+  height: 4px;
+}
+.layout-sider ::-webkit-scrollbar-thumb {
+  border: 4px solid transparent;
+  background-clip: padding-box;
+  border-radius: 7px;
+  background-color: var(--color-text-4);
+}
+.layout-sider ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-3);
+}
+.layout-sider::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 1px;
+  height: 100%;
+  background-color: var(--color-border);
+}
+.layout-sider > :global(.arco-layout-sider-children) {
+  overflow-y: hidden;
+}
+.layout-sider .collapse-btn {
+  height: 24px;
+  width: 24px;
+  background-color: var(--color-fill-1);
+  color: var(--color-text-3);
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+}
+.layout-sider .collapse-btn:hover {
+  background-color: var(--color-fill-3);
+}
+.menu-wrapper {
+  overflow: auto;
+  height: 100%;
+}
+.menu-wrapper :global(.arco-menu-item-inner > a::after),
+.menu-wrapper :global(.arco-menu-item > a::after) {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.menu-wrapper :global(.arco-menu-inline-header) {
+  font-weight: 500;
+}
+.icon {
+  font-size: 18px;
+  vertical-align: text-bottom;
+}
+.icon-empty {
+  width: 12px;
+  height: 18px;
+  display: inline-block;
+}
+.layout-content {
+  background-color: var(--color-fill-2);
+  min-width: 1100px;
+  min-height: 100vh;
+  transition: padding-left 0.2s;
+  box-sizing: border-box;
+}
+.layout-content-wrapper {
+  padding: 16px 20px 0px 20px;
+}
+.layout-breadcrumb {
+  margin-bottom: 16px;
+}
+.spin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(100vh - 60px);
+}
+  "#;
+  let app = Application::default();
+  {
+    app.context.lock().unwrap().option.hooks.content_interceptor = None;
+  }
+  let res = app.render_content_into_hashmap(content, filepath).unwrap();
+  println!("{:#?}", res);
+}
+
+#[test]
 fn test_less_render_into_map() {
   let filepath1 = path_resolve("assets/render_map/index.css");
   let filepath2 = path_resolve("assets/render_map/lib_2.css");

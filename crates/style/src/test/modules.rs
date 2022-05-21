@@ -3,6 +3,7 @@ use crate::new_less::applicationn::Application;
 use crate::new_less::file::path_resolve;
 
 #[test]
+#[ignore]
 fn test_less_css_module_render() {
   let filepath = path_resolve("assets/css_modules/index.module.less");
   let app = Application::default();
@@ -69,5 +70,4 @@ fn test_less_css_module_js_content_render() {
   let (css, js) = app.render_into_hashmap(filepath.as_str()).unwrap();
   println!("css_map ->{:#?}", css);
   println!("js ->{:#?}", js);
-
 }

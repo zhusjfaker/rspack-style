@@ -60,7 +60,7 @@ impl SelectorNode {
       HandleResult::Swtich => {}
     };
 
-    let obj = NewSelector::new(charlist.clone(), start_loc.clone(), map, parent, fileinfo);
+    let obj = NewSelector::new(charlist, start_loc, map, parent, fileinfo);
     Ok(SelectorNode::Select(obj))
   }
 
@@ -120,11 +120,11 @@ impl SelectorNode {
   pub fn get_file(&self) -> Option<FileRef> {
     let rule = self.get_rule();
     if let Some(rule_heap) = rule {
-      if let Some(file) = rule_heap.borrow().file_info.as_ref() {
-        Some(file.upgrade().unwrap())
-      } else {
-        None
-      }
+      rule_heap
+        .borrow()
+        .file_info
+        .as_ref()
+        .map(|file| file.upgrade().unwrap())
     } else {
       None
     }
@@ -189,24 +189,22 @@ impl SelectorNode {
               has_global = true;
               index += 1;
             }
+          } else if &ss[0..1] == "." && !has_global {
+            // 转化 class 样式选择器
+            let new_value = self.convert_class_paradigm(ss.to_string(), &hash_value, map);
+            new_list.push(SelectParadigm::SelectWrap(new_value));
+          } else if &ss[0..1] == "." && has_global {
+            // 不转化 class 样式选择器
+            new_list.push(par.clone());
+          } else if &ss[0..1] == "("
+            && &ss[ss.len() - 1..ss.len()] == ")"
+            && prevpar == Some(&SelectParadigm::SelectWrap(":global".to_string()))
+          {
+            // 第一位'(' 最后一位是')'
+            let new_value = ss[1..ss.len() - 1].to_string();
+            new_list.push(SelectParadigm::SelectWrap(new_value));
           } else {
-            if &ss[0..1] == "." && !has_global {
-              // 转化 class 样式选择器
-              let new_value = self.convert_class_paradigm(ss.to_string(), &hash_value, map);
-              new_list.push(SelectParadigm::SelectWrap(new_value));
-            } else if &ss[0..1] == "." && has_global {
-              // 不转化 class 样式选择器
-              new_list.push(par.clone());
-            } else if &ss[0..1] == "("
-              && &ss[ss.len() - 1..ss.len()] == ")"
-              && prevpar == Some(&SelectParadigm::SelectWrap(":global".to_string()))
-            {
-              // 第一位'(' 最后一位是')'
-              let new_value = ss[1..ss.len() - 1].to_string();
-              new_list.push(SelectParadigm::SelectWrap(new_value));
-            } else {
-              new_list.push(par.clone())
-            }
+            new_list.push(par.clone())
           }
         }
         SelectParadigm::CominaWrap(..) | SelectParadigm::KeyWrap(..) => new_list.push(par.clone()),
@@ -246,11 +244,11 @@ impl SelectorNode {
       for par in calc_index_list.iter() {
         match par {
           SelectParadigm::SelectWrap(ss) => {
-            txt += &ss;
+            txt += ss;
           }
           SelectParadigm::CominaWrap(cc) => txt += &cc.to_str().to_string(),
           SelectParadigm::KeyWrap(key) => {
-            txt += &key;
+            txt += key;
           }
           _ => {
             return Err(format!(
@@ -282,7 +280,7 @@ impl SelectorNode {
     }
 
     let nearly_select_node = NewSelector::find_up_select_node(node.clone());
-    let nearly_media_node = MediaQuery::find_up_media_node(node.clone());
+    let nearly_media_node = MediaQuery::find_up_media_node(node);
 
     if nearly_select_node.is_none() && nearly_media_node.is_none() {
       return Err(

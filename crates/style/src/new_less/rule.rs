@@ -135,9 +135,7 @@ impl RuleNode {
     if let Some(Value::String(content)) = map.get("content") {
       rule_node.origin_charlist = content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer RuleNode has error -> content is empty!"
-      ));
+      return Err("deserializer RuleNode has error -> content is empty!".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       rule_node.loc = Some(Loc::deserializer(loc));
@@ -166,13 +164,11 @@ impl RuleNode {
     if let Some(Value::Object(map)) = map.get("select") {
       heapobj.borrow_mut().selector = Some(SelectorNode::deserializer(
         map,
-        Some(weak_self.clone()),
+        Some(weak_self),
         fileinfo.as_ref().cloned(),
       )?);
     } else {
-      return Err(format!(
-        "deserializer RuleNode has error -> select is empty!"
-      ));
+      return Err("deserializer RuleNode has error -> select is empty!".to_string());
     }
     heapobj.borrow_mut().block_node = block_node_recovery_list;
     Ok(heapobj)
@@ -238,7 +234,7 @@ impl RuleNode {
     }
 
     // example -> @keyframes, @font-family
-    if select_txt.find("@") == Some(0) {
+    if select_txt.find('@') == Some(0) {
       if media_txt.is_empty() {
         *content += format!(
           "\n{}{}\n{}\n{}",

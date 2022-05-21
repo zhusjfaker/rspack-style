@@ -16,6 +16,7 @@ impl Application {
 
   ///
   /// 产生代码
+  /// 根据 硬盘上 文件
   ///
   pub fn render(&self, filepath: &str) -> Result<String, String> {
     FileNode::create_disklocation(filepath.to_string(), self.context.clone())
@@ -23,10 +24,43 @@ impl Application {
 
   ///
   /// 产生代码
-  /// 并且分层 进入 hashmap
+  /// 根据 内存上 内容
   ///
-  pub fn render_into_hashmap(&self, filepath: &str) -> Result<(HashMap<String, String>, String), String> {
+  pub fn render_content(&self, content: &str, filepath: &str) -> Result<String, String> {
+    FileNode::create_txt_content(
+      content.to_string(),
+      filepath.to_string(),
+      self.context.clone(),
+    )
+  }
+
+  ///
+  /// 产生代码
+  /// 并且分层 进入 hashmap
+  /// 根据 硬盘上 文件
+  ///
+  pub fn render_into_hashmap(
+    &self,
+    filepath: &str,
+  ) -> Result<(HashMap<String, String>, String), String> {
     FileNode::create_disklocation_into_hashmap(filepath.to_string(), self.context.clone())
+  }
+
+  ///
+  /// 产生代码
+  /// 并且分层 进入 hashmap
+  /// 根据 内存上 内容
+  ///
+  pub fn render_content_into_hashmap(
+    &self,
+    content: &str,
+    filepath: &str,
+  ) -> Result<(HashMap<String, String>, String), String> {
+    FileNode::create_content_into_hashmap(
+      content.to_string(),
+      filepath.to_string(),
+      self.context.clone(),
+    )
   }
 
   ///

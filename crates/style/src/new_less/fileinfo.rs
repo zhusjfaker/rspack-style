@@ -162,7 +162,7 @@ impl FileInfo {
     } else {
       // 绝对路径的情况
       let res = readfile(filepath.as_str())?;
-      Ok((filepath.clone(), res))
+      Ok((filepath, res))
     };
   }
 }

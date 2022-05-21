@@ -84,7 +84,7 @@ impl ValueNode {
             txt, index
           ));
         }
-      } else if var.len() > 0 {
+      } else if !var.is_empty() {
         var.push(*current);
         if *current == '}' {
           let var_ident = format!("@{}", var.tocharlist()[2..var.len() - 1].to_vec().poly());
@@ -127,7 +127,7 @@ impl ValueNode {
           string_handle_vec.push((
             vec![index - 1, index],
             vec![IdentType::Word(
-              no_var_str_const.replace("'", "").replace("\"", ""),
+              no_var_str_const.replace('\'', "").replace('\"', ""),
             )],
           ));
         }

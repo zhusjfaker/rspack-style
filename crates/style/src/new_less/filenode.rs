@@ -28,7 +28,7 @@ impl FileNode {
     });
     list
   }
-
+  
   ///
   /// 生成代码
   ///
@@ -51,7 +51,7 @@ impl FileNode {
       }
     }
     let mut self_code_gen_res = "".to_string();
-
+    
     let source = {
       info
         .context
@@ -79,7 +79,7 @@ impl FileNode {
     self.info.borrow_mut().class_selector_collect = set;
     Ok(res)
   }
-
+  
   ///
   /// 用来执行多 css 之间的 bundle
   /// 初始化 执行 需要 放入一个 空map 的引用 后续会自动填充到 该参数 上
@@ -131,7 +131,7 @@ impl FileNode {
     css_module_content += &self.output_js_with_cssmodule();
     Ok(css_module_content)
   }
-
+  
   ///
   /// 拼接css_module 的 js 导出内容
   ///
@@ -149,7 +149,7 @@ impl FileNode {
     }
     res
   }
-
+  
   ///
   /// parse 当前文件下 所有的 select 字符串
   /// 需要 第一遍 完成基本遍历
@@ -168,7 +168,7 @@ impl FileNode {
     }
     Ok(())
   }
-
+  
   ///
   /// 是否需要 css module
   ///
@@ -182,7 +182,7 @@ impl FileNode {
       filename.to_lowercase().contains(&ext.to_lowercase())
     }
   }
-
+  
   ///
   /// 根据文件路径 解析 文件
   ///
@@ -251,9 +251,9 @@ impl FileNode {
     context_value.set_parse_cache(disk_location.as_str(), file_info_json);
     Ok(obj)
   }
-
+  
   ///
-  /// 根据文件路径 转换 文件
+  /// 根据文件路径 转换 文件(分页)
   ///
   pub fn create_disklocation(filepath: String, context: ParseContext) -> Result<String, String> {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
@@ -263,7 +263,7 @@ impl FileNode {
     sync_context.clear_codegen_record();
     Ok(res)
   }
-
+  
   ///
   /// 根据文件路径 转换 文件
   ///
@@ -279,15 +279,16 @@ impl FileNode {
       {}
     {};
     export default style;
-    "#,"{",css_module_content,"}");
+    "#, "{", css_module_content, "}");
     let mut sync_context = context.lock().unwrap();
     sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();
     Ok((map, css_module_content))
   }
-
+  
   ///
   /// 根据文件内容 解析文件
+  /// 内存上 内容
   ///
   pub fn create_txt_content_parse(
     mut content: String,
@@ -322,8 +323,10 @@ impl FileNode {
     let text_content: String = content.clone();
     let charlist = text_content.tocharlist();
     let cp_context = context.clone();
-    let mut sync_context = cp_context.lock().unwrap();
-    let option = sync_context.get_options();
+    let option ={
+      let sync_context = cp_context.lock().unwrap();
+      sync_context.get_options()
+    };
     let mut locmap: Option<LocMap> = None;
     if option.sourcemap {
       locmap = Some(FileInfo::get_loc_by_content(&charlist));
@@ -348,19 +351,50 @@ impl FileNode {
     // 把当前 节点 的 对象 指针 放到 节点上 缓存中
     let disk_location = info.borrow().disk_location.clone();
     let file_info_json = serde_json::to_string_pretty(&obj).unwrap();
-    sync_context.set_parse_cache(disk_location.as_str(), file_info_json);
+    {
+      let mut sync_context = cp_context.lock().unwrap();
+      sync_context.set_parse_cache(disk_location.as_str(), file_info_json);
+    }
     Ok(obj)
   }
-
+  
+  ///
+  /// codegen 样式内容
+  /// 内存上 内容
+  ///
   pub fn create_txt_content(
     content: String,
-    context: ParseContext,
     filename: String,
+    context: ParseContext,
   ) -> Result<String, String> {
     let obj = Self::create_txt_content_parse(content, context.clone(), filename)?;
     let mut sync_context = context.lock().unwrap();
     let res = obj.code_gen()?;
     sync_context.clear_codegen_record();
     Ok(res)
+  }
+  
+  ///
+  /// 根据文件路径 转换 文件(分页)
+  /// 内存上 内容
+  ///
+  pub fn create_content_into_hashmap(
+    content: String,
+    filepath: String,
+    context: ParseContext,
+  ) -> Result<(HashMap<String, String>, String), String> {
+    let obj = Self::create_txt_content_parse(content, context.clone(), filepath)?;
+    let mut map = HashMap::new();
+    let mut css_module_content = obj.code_gen_into_map(&mut map)?;
+    css_module_content = format!(r#"
+    const style = {}
+      {}
+    {};
+    export default style;
+    "#, "{", css_module_content, "}");
+    let mut sync_context = context.lock().unwrap();
+    sync_context.clear_parse_cache();
+    sync_context.clear_codegen_record();
+    Ok((map, css_module_content))
   }
 }

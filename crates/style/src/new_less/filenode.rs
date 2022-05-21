@@ -274,12 +274,15 @@ impl FileNode {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
     let mut map = HashMap::new();
     let mut css_module_content = obj.code_gen_into_map(&mut map)?;
-    css_module_content = format!(r#"
+    css_module_content = format!(
+      r#"
     const style = {}
       {}
     {};
     export default style;
-    "#,"{",css_module_content,"}");
+    "#,
+      "{", css_module_content, "}"
+    );
     let mut sync_context = context.lock().unwrap();
     sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();

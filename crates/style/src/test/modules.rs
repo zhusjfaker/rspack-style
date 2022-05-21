@@ -69,5 +69,4 @@ fn test_less_css_module_js_content_render() {
   let (css, js) = app.render_into_hashmap(filepath.as_str()).unwrap();
   println!("css_map ->{:#?}", css);
   println!("js ->{:#?}", js);
-
 }

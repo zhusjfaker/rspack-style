@@ -1,5 +1,4 @@
 use crate::extend::enum_extend::EnumExtend;
-use crate::extend::str_into::StringInto;
 
 ///
 /// Select 合词字符串
@@ -15,4 +14,8 @@ pub enum TokenImport {
 
 impl EnumExtend for TokenImport {}
 
-impl StringInto for TokenImport {}
+impl Into<String> for TokenImport {
+  fn into(self) -> String {
+    format!("{}", self)
+  }
+}

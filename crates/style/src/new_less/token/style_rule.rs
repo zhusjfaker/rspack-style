@@ -1,5 +1,4 @@
 use crate::extend::enum_extend::EnumExtend;
-use crate::extend::str_into::StringInto;
 
 #[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
 pub enum TokenStyleRuleKeyAllow {
@@ -12,4 +11,8 @@ pub enum TokenStyleRuleKeyAllow {
 
 impl EnumExtend for TokenStyleRuleKeyAllow {}
 
-impl StringInto for TokenStyleRuleKeyAllow {}
+impl Into<String> for TokenStyleRuleKeyAllow {
+  fn into(self) -> String {
+    self.to_string()
+  }
+}

@@ -11,6 +11,7 @@ pub enum TokenVarKeyAllow {
 
 impl EnumExtend for TokenVarKeyAllow {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenVarKeyAllow {
   fn into(self) -> String {
     self.to_string()

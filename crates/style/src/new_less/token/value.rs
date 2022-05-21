@@ -20,6 +20,7 @@ pub enum TokenValueAllow {
 
 impl EnumExtend for TokenValueAllow {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenValueAllow {
   fn into(self) -> String {
     self.to_string()

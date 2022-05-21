@@ -11,6 +11,7 @@ pub enum TokenStyleRuleKeyAllow {
 
 impl EnumExtend for TokenStyleRuleKeyAllow {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenStyleRuleKeyAllow {
   fn into(self) -> String {
     self.to_string()

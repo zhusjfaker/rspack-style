@@ -17,6 +17,7 @@ pub enum TokenMeidaAllow {
 
 impl EnumExtend for TokenMeidaAllow {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenMeidaAllow {
   fn into(self) -> String {
     self.to_string()
@@ -40,6 +41,7 @@ pub enum TokenMediaType {
 
 impl EnumExtend for TokenMediaType {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenMediaType {
   fn into(self) -> String {
     self.to_string()
@@ -63,6 +65,7 @@ pub enum TokenMediaLogic {
 
 impl EnumExtend for TokenMediaLogic {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenMediaLogic {
   fn into(self) -> String {
     self.to_string()
@@ -177,6 +180,7 @@ pub enum TokenMediaFeature {
 
 impl EnumExtend for TokenMediaFeature {}
 
+#[allow(clippy::from_over_into)]
 impl Into<String> for TokenMediaFeature {
   fn into(self) -> String {
     self.to_string()

@@ -25,7 +25,10 @@ impl Application {
   /// 产生代码
   /// 并且分层 进入 hashmap
   ///
-  pub fn render_into_hashmap(&self, filepath: &str) -> Result<(HashMap<String, String>, String), String> {
+  pub fn render_into_hashmap(
+    &self,
+    filepath: &str,
+  ) -> Result<(HashMap<String, String>, String), String> {
     FileNode::create_disklocation_into_hashmap(filepath.to_string(), self.context.clone())
   }
 

@@ -7,5 +7,4 @@ fn main() {
   let app = Application::default();
   let start = Instant::now();
   app.render(filepath.as_str()).unwrap();
-  println!("{:?}", start.elapsed());;
 }

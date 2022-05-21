@@ -1,5 +1,4 @@
 use crate::extend::enum_extend::EnumExtend;
-use crate::extend::str_into::StringInto;
 
 ///
 /// Meida 允许 词根
@@ -18,7 +17,11 @@ pub enum TokenMeidaAllow {
 
 impl EnumExtend for TokenMeidaAllow {}
 
-impl StringInto for TokenMeidaAllow {}
+impl Into<String> for TokenMeidaAllow {
+  fn into(self) -> String {
+    self.to_string()
+  }
+}
 
 ///
 /// 媒体类型
@@ -37,7 +40,11 @@ pub enum TokenMediaType {
 
 impl EnumExtend for TokenMediaType {}
 
-impl StringInto for TokenMediaType {}
+impl Into<String> for TokenMediaType {
+  fn into(self) -> String {
+    self.to_string()
+  }
+}
 
 ///
 /// 逻辑操作符
@@ -56,7 +63,11 @@ pub enum TokenMediaLogic {
 
 impl EnumExtend for TokenMediaLogic {}
 
-impl StringInto for TokenMediaLogic {}
+impl Into<String> for TokenMediaLogic {
+  fn into(self) -> String {
+    self.to_string()
+  }
+}
 
 ///
 /// 媒体功能条件
@@ -166,4 +177,8 @@ pub enum TokenMediaFeature {
 
 impl EnumExtend for TokenMediaFeature {}
 
-impl StringInto for TokenMediaFeature {}
+impl Into<String> for TokenMediaFeature {
+  fn into(self) -> String {
+    self.to_string()
+  }
+}

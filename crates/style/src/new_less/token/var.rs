@@ -1,5 +1,4 @@
 use crate::extend::enum_extend::EnumExtend;
-use crate::extend::str_into::StringInto;
 
 #[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
 pub enum TokenVarKeyAllow {
@@ -12,4 +11,8 @@ pub enum TokenVarKeyAllow {
 
 impl EnumExtend for TokenVarKeyAllow {}
 
-impl StringInto for TokenVarKeyAllow {}
+impl Into<String> for TokenVarKeyAllow {
+  fn into(self) -> String {
+    self.to_string()
+  }
+}

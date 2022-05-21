@@ -199,12 +199,12 @@ impl Context {
     let filecache = self.filecache.lock().unwrap();
     let json_res = filecache.get(key);
     if let Some(json) = json_res {
-      let root: HashMap<String, Value> = serde_json::from_str(&json).unwrap();
+      let root: HashMap<String, Value> = serde_json::from_str(json).unwrap();
       return if let Some(Value::Object(map)) = root.get("info") {
         let node = self.deserializer(map)?;
         Ok(Some(node))
       } else {
-        Err(format!("info value is empty!"))
+        Err("info value is empty!".to_string())
       };
     }
     Ok(None)
@@ -223,7 +223,7 @@ impl Context {
       origin_txt_content: "".to_string(),
       origin_charlist: vec![],
       locmap: None,
-      context: self.weak_ref.as_ref().unwrap().upgrade().unwrap().clone(),
+      context: self.weak_ref.as_ref().unwrap().upgrade().unwrap(),
       self_weak: None,
       import_files: vec![],
       modules: false,
@@ -233,20 +233,17 @@ impl Context {
     if let Some(Value::String(disk_location)) = json_disk_location {
       obj.disk_location = disk_location.to_string();
     } else {
-      return Err(format!("deserializer FileNode -> disk_location is empty!"));
+      return Err("deserializer FileNode -> disk_location is empty!".to_string());
     }
     let need_modules =
       FileNode::is_need_css_modules(obj.disk_location.as_str(), self.option.modules);
     obj.modules = need_modules;
     if let Some(Value::String(origin_txt_content)) = json_origin_txt_content {
       obj.origin_txt_content = origin_txt_content.to_string();
-      obj.hash_perfix =
-        StyleHash::generate_css_module_hash(&obj.disk_location, &origin_txt_content);
+      obj.hash_perfix = StyleHash::generate_css_module_hash(&obj.disk_location, origin_txt_content);
       obj.origin_charlist = obj.origin_txt_content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer FileNode -> origin_txt_content is empty!"
-      ));
+      return Err("deserializer FileNode -> origin_txt_content is empty!".to_string());
     }
     if self.option.sourcemap {
       obj.locmap = Some(FileInfo::get_loc_by_content(&obj.origin_charlist));

@@ -28,7 +28,7 @@ impl FileNode {
     });
     list
   }
-  
+
   ///
   /// 生成代码
   ///
@@ -51,7 +51,7 @@ impl FileNode {
       }
     }
     let mut self_code_gen_res = "".to_string();
-    
+
     let source = {
       info
         .context
@@ -60,7 +60,7 @@ impl FileNode {
         .get_render_cache(info.disk_location.as_str())
     };
     if let Some(code) = source {
-      self_code_gen_res = code.to_string();
+      self_code_gen_res = code;
     } else {
       for item in self.getrules() {
         item.borrow().code_gen(&mut self_code_gen_res, &mut set)?;
@@ -79,7 +79,7 @@ impl FileNode {
     self.info.borrow_mut().class_selector_collect = set;
     Ok(res)
   }
-  
+
   ///
   /// 用来执行多 css 之间的 bundle
   /// 初始化 执行 需要 放入一个 空map 的引用 后续会自动填充到 该参数 上
@@ -110,7 +110,7 @@ impl FileNode {
         .get_render_cache(info.disk_location.as_str())
     };
     if let Some(code) = source {
-      res = code.to_string();
+      res = code;
     } else {
       for item in self.getrules() {
         item.borrow().code_gen(&mut res, &mut set)?;
@@ -131,7 +131,7 @@ impl FileNode {
     css_module_content += &self.output_js_with_cssmodule();
     Ok(css_module_content)
   }
-  
+
   ///
   /// 拼接css_module 的 js 导出内容
   ///
@@ -149,7 +149,7 @@ impl FileNode {
     }
     res
   }
-  
+
   ///
   /// parse 当前文件下 所有的 select 字符串
   /// 需要 第一遍 完成基本遍历
@@ -168,7 +168,7 @@ impl FileNode {
     }
     Ok(())
   }
-  
+
   ///
   /// 是否需要 css module
   ///
@@ -182,7 +182,7 @@ impl FileNode {
       filename.to_lowercase().contains(&ext.to_lowercase())
     }
   }
-  
+
   ///
   /// 根据文件路径 解析 文件
   ///
@@ -218,8 +218,8 @@ impl FileNode {
       context_value.get_parse_cache(&abs_path)?
     };
     // 缓存里有的话 直接跳出
-    if node.is_some() {
-      return Ok(node.unwrap());
+    if let Some(node_wrap_value) = node {
+      return Ok(node_wrap_value);
     }
     let text_content = content.clone();
     let charlist = content.tocharlist();
@@ -251,7 +251,7 @@ impl FileNode {
     context_value.set_parse_cache(disk_location.as_str(), file_info_json);
     Ok(obj)
   }
-  
+
   ///
   /// 根据文件路径 转换 文件(分页)
   ///
@@ -263,7 +263,7 @@ impl FileNode {
     sync_context.clear_codegen_record();
     Ok(res)
   }
-  
+
   ///
   /// 根据文件路径 转换 文件
   ///
@@ -274,18 +274,21 @@ impl FileNode {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
     let mut map = HashMap::new();
     let mut css_module_content = obj.code_gen_into_map(&mut map)?;
-    css_module_content = format!(r#"
+    css_module_content = format!(
+      r#"
     const style = {}
       {}
     {};
     export default style;
-    "#, "{", css_module_content, "}");
+    "#,
+      "{", css_module_content, "}"
+    );
     let mut sync_context = context.lock().unwrap();
     sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();
     Ok((map, css_module_content))
   }
-  
+
   ///
   /// 根据文件内容 解析文件
   /// 内存上 内容
@@ -304,8 +307,8 @@ impl FileNode {
       Self::is_need_css_modules(filename.as_str(), modules)
     };
     // 缓存里有的话 直接跳出
-    if node.is_some() {
-      return Ok(node.unwrap());
+    if let Some(node_wrap_value) = node {
+      return Ok(node_wrap_value);
     }
     let content_transform = {
       context
@@ -323,7 +326,7 @@ impl FileNode {
     let text_content: String = content.clone();
     let charlist = text_content.tocharlist();
     let cp_context = context.clone();
-    let option ={
+    let option = {
       let sync_context = cp_context.lock().unwrap();
       sync_context.get_options()
     };
@@ -357,7 +360,7 @@ impl FileNode {
     }
     Ok(obj)
   }
-  
+
   ///
   /// codegen 样式内容
   /// 内存上 内容
@@ -373,7 +376,7 @@ impl FileNode {
     sync_context.clear_codegen_record();
     Ok(res)
   }
-  
+
   ///
   /// 根据文件路径 转换 文件(分页)
   /// 内存上 内容
@@ -386,12 +389,15 @@ impl FileNode {
     let obj = Self::create_txt_content_parse(content, context.clone(), filepath)?;
     let mut map = HashMap::new();
     let mut css_module_content = obj.code_gen_into_map(&mut map)?;
-    css_module_content = format!(r#"
+    css_module_content = format!(
+      r#"
     const style = {}
       {}
     {};
     export default style;
-    "#, "{", css_module_content, "}");
+    "#,
+      "{", css_module_content, "}"
+    );
     let mut sync_context = context.lock().unwrap();
     sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();

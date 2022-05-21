@@ -116,7 +116,7 @@ impl VarNode {
     let mut obj = Self {
       loc: None,
       uuid: "".to_string(),
-      map: LocMap::new(&vec![]),
+      map: LocMap::new(&[]),
       charlist: vec![],
       parent: parent.as_ref().cloned(),
       fileinfo: fileinfo.as_ref().cloned(),
@@ -127,25 +127,23 @@ impl VarNode {
     if let Some(Value::String(content)) = map.get("content") {
       obj.charlist = content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer VarNode has error -> content is empty!"
-      ));
+      return Err("deserializer VarNode has error -> content is empty!".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       obj.loc = Some(Loc::deserializer(loc));
-      obj.map = LocMap::merge(&obj.loc.as_ref().unwrap(), &obj.charlist).0;
+      obj.map = LocMap::merge(obj.loc.as_ref().unwrap(), &obj.charlist).0;
     } else {
       obj.map = LocMap::new(&obj.charlist);
     }
     if let Some(Value::String(uuid)) = map.get("uuid") {
       obj.uuid = uuid.to_string();
     } else {
-      return Err(format!("deserializer VarNode has error -> uuid is empty!"));
+      return Err("deserializer VarNode has error -> uuid is empty!".to_string());
     }
     if let Some(Value::String(key)) = map.get("key") {
       obj.key = Some(key.to_string());
     } else {
-      return Err(format!("deserializer VarNode has error -> key is empty!"));
+      return Err("deserializer VarNode has error -> key is empty!".to_string());
     }
     if let Some(Value::Object(value_map)) = map.get("value") {
       obj.value = Some(ValueNode::deserializer(value_map, parent, fileinfo)?);

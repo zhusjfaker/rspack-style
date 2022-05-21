@@ -16,7 +16,7 @@ fn test_less_render() {
 
 #[test]
 fn test_css_render_content() {
-  let filepath = "/Users/zhushijie/Desktop/github/rspack/examples/arco-pro/src/style/layout.module.less";
+  let filepath = "/layout.module.less";
   let content = r#"
 .layout {
   width: 100%;

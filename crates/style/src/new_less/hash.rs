@@ -21,15 +21,17 @@ impl StyleHash {
     let path = Path::new(abs_filepath);
     let mut perfix = "".to_string();
     if let Some(parent_path) = path.parent() {
-      perfix += parent_path.file_name().unwrap().to_str().unwrap();
-      perfix += "_";
+      if let Some(parent_dir) = parent_path.file_name() {
+        perfix += parent_dir.to_str().unwrap();
+        perfix += "_";
+      }
     }
     perfix += path
       .file_stem()
       .unwrap()
       .to_str()
       .unwrap()
-      .replace(".", "_")
+      .replace('.', "_")
       .as_str();
     let content_hash = Self::generate_hash_by_content(content);
     format!("{}_{}", perfix, content_hash)

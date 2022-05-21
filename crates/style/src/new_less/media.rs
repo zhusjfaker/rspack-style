@@ -72,16 +72,14 @@ impl MediaQuery {
   pub fn deserializer(map: &Map<String, Value>, parent: NodeWeakRef) -> Result<Self, String> {
     let mut media = Self {
       loc: None,
-      map: LocMap::new(&vec![]),
+      map: LocMap::new(&[]),
       charlist: vec![],
       parent,
     };
     if let Some(Value::String(content)) = map.get("content") {
       media.charlist = content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer MediaQuery has error -> charlist is empty!"
-      ));
+      return Err("deserializer MediaQuery has error -> charlist is empty!".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       media.loc = Some(Loc::deserializer(loc));

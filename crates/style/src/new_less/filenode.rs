@@ -60,7 +60,7 @@ impl FileNode {
         .get_render_cache(info.disk_location.as_str())
     };
     if let Some(code) = source {
-      self_code_gen_res = code.to_string();
+      self_code_gen_res = code;
     } else {
       for item in self.getrules() {
         item.borrow().code_gen(&mut self_code_gen_res, &mut set)?;
@@ -110,7 +110,7 @@ impl FileNode {
         .get_render_cache(info.disk_location.as_str())
     };
     if let Some(code) = source {
-      res = code.to_string();
+      res = code;
     } else {
       for item in self.getrules() {
         item.borrow().code_gen(&mut res, &mut set)?;
@@ -218,8 +218,8 @@ impl FileNode {
       context_value.get_parse_cache(&abs_path)?
     };
     // 缓存里有的话 直接跳出
-    if node.is_some() {
-      return Ok(node.unwrap());
+    if let Some(node_wrap_value) = node {
+      return Ok(node_wrap_value);
     }
     let text_content = content.clone();
     let charlist = content.tocharlist();
@@ -253,7 +253,7 @@ impl FileNode {
   }
 
   ///
-  /// 根据文件路径 转换 文件
+  /// 根据文件路径 转换 文件(分页)
   ///
   pub fn create_disklocation(filepath: String, context: ParseContext) -> Result<String, String> {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
@@ -291,6 +291,7 @@ impl FileNode {
 
   ///
   /// 根据文件内容 解析文件
+  /// 内存上 内容
   ///
   pub fn create_txt_content_parse(
     mut content: String,
@@ -306,8 +307,8 @@ impl FileNode {
       Self::is_need_css_modules(filename.as_str(), modules)
     };
     // 缓存里有的话 直接跳出
-    if node.is_some() {
-      return Ok(node.unwrap());
+    if let Some(node_wrap_value) = node {
+      return Ok(node_wrap_value);
     }
     let content_transform = {
       context
@@ -325,8 +326,10 @@ impl FileNode {
     let text_content: String = content.clone();
     let charlist = text_content.tocharlist();
     let cp_context = context.clone();
-    let mut sync_context = cp_context.lock().unwrap();
-    let option = sync_context.get_options();
+    let option = {
+      let sync_context = cp_context.lock().unwrap();
+      sync_context.get_options()
+    };
     let mut locmap: Option<LocMap> = None;
     if option.sourcemap {
       locmap = Some(FileInfo::get_loc_by_content(&charlist));
@@ -351,19 +354,53 @@ impl FileNode {
     // 把当前 节点 的 对象 指针 放到 节点上 缓存中
     let disk_location = info.borrow().disk_location.clone();
     let file_info_json = serde_json::to_string_pretty(&obj).unwrap();
-    sync_context.set_parse_cache(disk_location.as_str(), file_info_json);
+    {
+      let mut sync_context = cp_context.lock().unwrap();
+      sync_context.set_parse_cache(disk_location.as_str(), file_info_json);
+    }
     Ok(obj)
   }
 
+  ///
+  /// codegen 样式内容
+  /// 内存上 内容
+  ///
   pub fn create_txt_content(
     content: String,
-    context: ParseContext,
     filename: String,
+    context: ParseContext,
   ) -> Result<String, String> {
     let obj = Self::create_txt_content_parse(content, context.clone(), filename)?;
     let mut sync_context = context.lock().unwrap();
     let res = obj.code_gen()?;
     sync_context.clear_codegen_record();
     Ok(res)
+  }
+
+  ///
+  /// 根据文件路径 转换 文件(分页)
+  /// 内存上 内容
+  ///
+  pub fn create_content_into_hashmap(
+    content: String,
+    filepath: String,
+    context: ParseContext,
+  ) -> Result<(HashMap<String, String>, String), String> {
+    let obj = Self::create_txt_content_parse(content, context.clone(), filepath)?;
+    let mut map = HashMap::new();
+    let mut css_module_content = obj.code_gen_into_map(&mut map)?;
+    css_module_content = format!(
+      r#"
+    const style = {}
+      {}
+    {};
+    export default style;
+    "#,
+      "{", css_module_content, "}"
+    );
+    let mut sync_context = context.lock().unwrap();
+    sync_context.clear_parse_cache();
+    sync_context.clear_codegen_record();
+    Ok((map, css_module_content))
   }
 }

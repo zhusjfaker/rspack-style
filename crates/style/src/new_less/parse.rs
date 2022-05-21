@@ -13,15 +13,14 @@ impl Parse for FileNode {
     let mut importfiles: Vec<FileRef> = vec![];
     let (commentlsit, varlist, rulelist) = {
       let info = self.info.borrow();
-      let res = Self::parse(
+      Self::parse(
         info.context.clone(),
         &info.origin_charlist,
         &info.locmap,
         None,
         info.self_weak.clone(),
         &mut importfiles,
-      )?;
-      res
+      )?
     };
     let mut info = self.info.borrow_mut();
     info.block_node.append(
@@ -257,16 +256,14 @@ pub trait Parse {
         if *char == start_braces && match_queto.is_none() {
           if prev == Some(&'@') {
             ignore_braces_level += 1;
-          } else {
-            if ignore_braces_level == 0 {
-              if braces_level == 0 {
-                selector_txt = temp_word[0..temp_word.len() - 1].to_vec().trim();
-                temp_word.clear();
-              }
-              braces_level += 1;
-            } else {
-              ignore_braces_level += 1;
+          } else if ignore_braces_level == 0 {
+            if braces_level == 0 {
+              selector_txt = temp_word[0..temp_word.len() - 1].to_vec().trim();
+              temp_word.clear();
             }
+            braces_level += 1;
+          } else {
+            ignore_braces_level += 1;
           }
         }
         if *char == end_braces && match_queto.is_none() {

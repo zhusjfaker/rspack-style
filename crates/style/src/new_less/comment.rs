@@ -43,23 +43,17 @@ impl CommentNode {
     if let Some(Value::String(content)) = map.get("content") {
       comment.content = content.to_string();
     } else {
-      return Err(format!(
-        "deserializer CommentNode has error -> content is empty"
-      ));
+      return Err("deserializer CommentNode has error -> content is empty".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       comment.loc = Some(Loc::deserializer(loc));
     } else {
-      return Err(format!(
-        "deserializer CommentNode has error -> loc is empty"
-      ));
+      return Err("deserializer CommentNode has error -> loc is empty".to_string());
     }
     if let Some(Value::Number(startindex)) = map.get("startindex") {
       comment.startindex = startindex.to_string().parse::<usize>().unwrap();
     } else {
-      return Err(format!(
-        "deserializer CommentNode has error -> startindex is empty"
-      ));
+      return Err("deserializer CommentNode has error -> startindex is empty".to_string());
     }
 
     Ok(comment)

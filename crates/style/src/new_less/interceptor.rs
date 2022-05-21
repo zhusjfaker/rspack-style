@@ -105,7 +105,7 @@ impl LessInterceptor {
 
       let output = task
         .output()
-        .expect(format!("{}->less.js callback is failed", filepath).as_str());
+        .unwrap_or_else(|_| panic!("{}->less.js callback is failed", filepath));
       let status = output.status.code().unwrap();
       let less_content = std::str::from_utf8(&*output.stdout).unwrap().to_string();
       return if status > 0 {

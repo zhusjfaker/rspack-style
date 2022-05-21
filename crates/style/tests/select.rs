@@ -1,5 +1,5 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::select::{NewSelector, Paradigm};
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::select::{NewSelector, Paradigm};
 
 #[test]
 fn test_select_paradigm_parse() {

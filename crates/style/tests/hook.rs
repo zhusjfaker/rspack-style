@@ -1,5 +1,5 @@
-use crate::new_less::applicationn::Application;
-use crate::new_less::file::path_resolve;
+use rspack_style::new_less::applicationn::Application;
+use rspack_style::new_less::file::path_resolve;
 use std::path::Path;
 use std::process::Command;
 use std::sync::Arc;

@@ -1,8 +1,8 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::context::Context;
-use crate::new_less::fileinfo::FileInfo;
-use crate::new_less::import::ImportNode;
-use crate::new_less::var::HandleResult;
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::context::Context;
+use rspack_style::new_less::fileinfo::FileInfo;
+use rspack_style::new_less::import::ImportNode;
+use rspack_style::new_less::var::HandleResult;
 
 #[test]
 fn test_rel_path() {

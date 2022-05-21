@@ -90,20 +90,18 @@ impl ValueNode {
       charlist: vec![],
       parent,
       fileinfo,
-      map: LocMap::new(&vec![]),
+      map: LocMap::new(&[]),
       loc: None,
       word_ident_list: vec![],
     };
     if let Some(Value::String(content)) = map.get("content") {
       obj.charlist = content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer ValueNode has error -> content is empty!"
-      ));
+      return Err("deserializer ValueNode has error -> content is empty!".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       obj.loc = Some(Loc::deserializer(loc));
-      obj.map = LocMap::merge(&obj.loc.as_ref().unwrap(), &obj.charlist).0;
+      obj.map = LocMap::merge(obj.loc.as_ref().unwrap(), &obj.charlist).0;
     } else {
       obj.map = LocMap::new(&obj.charlist);
     }
@@ -113,9 +111,7 @@ impl ValueNode {
         .map(IdentType::deserializer)
         .collect::<Vec<IdentType>>()
     } else {
-      return Err(format!(
-        "deserializer ValueNode has error -> ident is empty!"
-      ));
+      return Err("deserializer ValueNode has error -> ident is empty!".to_string());
     }
     Ok(obj)
   }

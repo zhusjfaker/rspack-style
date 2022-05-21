@@ -1,7 +1,7 @@
-use crate::extend::rs_hooks::{create_hooks_str, HookData};
-use crate::extend::string::StringExtend;
-use crate::extend::vec_str::VecCharExtend;
-use crate::extend::vec_str::VecCharOptionalExtend;
+use rspack_style::extend::rs_hooks::{create_hooks_str, HookData};
+use rspack_style::extend::string::StringExtend;
+use rspack_style::extend::vec_str::VecCharExtend;
+use rspack_style::extend::vec_str::VecCharOptionalExtend;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::rc::{Rc, Weak};

@@ -8,5 +8,3 @@ extern crate test as unit_test;
 mod example;
 pub mod extend;
 pub mod new_less;
-#[cfg(test)]
-mod test;

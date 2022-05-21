@@ -24743,12 +24743,17 @@ function get_argv(key) {
 async function main() {
   let content = get_argv("content");
   let option_value = get_argv("option");
+  let file_name = get_argv("file_name");
   let options = void 0;
   if (option_value) {
     options = JSON.parse(option_value);
   }
   if (content) {
     content = JSON.parse(content)?.content;
+  } else if (file_name) {
+    const fs = require("fs");
+    let file_content = fs.readFileSync(file_name, "utf8");
+    content = JSON.parse(file_content)?.content;
   }
   if (content && options?.filename) {
     return handle(content, options);

@@ -113,15 +113,14 @@ impl NewSelector {
     parent: NodeWeakRef,
     fileinfo: FileWeakRef,
   ) -> Self {
-    let obj = NewSelector {
+    NewSelector {
       paradigm_vec: vec![],
       loc,
       map: map.unwrap_or_else(|| LocMap::new(&charlist)),
       charlist,
       parent,
       fileinfo,
-    };
-    obj
+    }
   }
 
   ///
@@ -155,7 +154,7 @@ impl NewSelector {
     let mut select = Self {
       paradigm_vec: vec![],
       loc: None,
-      map: LocMap::new(&vec![]),
+      map: LocMap::new(&[]),
       charlist: vec![],
       parent,
       fileinfo,
@@ -163,9 +162,7 @@ impl NewSelector {
     if let Some(Value::String(content)) = map.get("content") {
       select.charlist = content.tocharlist();
     } else {
-      return Err(format!(
-        "deserializer NewSelector has error -> charlist is empty!"
-      ));
+      return Err("deserializer NewSelector has error -> charlist is empty!".to_string());
     }
     if let Some(Value::Object(loc)) = map.get("loc") {
       select.loc = Some(Loc::deserializer(loc));
@@ -184,9 +181,7 @@ impl NewSelector {
         }
       }
     } else {
-      return Err(format!(
-        "deserializer NewSelector has error -> paradigm_vec is empty!"
-      ));
+      return Err("deserializer NewSelector has error -> paradigm_vec is empty!".to_string());
     }
     Ok(select)
   }
@@ -509,9 +504,7 @@ impl NewSelector {
             } else {
               return Err(self.errormsg(index).err().unwrap());
             }
-          } else if TokenAllowChar::is(char) {
-            temp.push(*char);
-          } else if Token::is_space_token(Some(char)) {
+          } else if TokenAllowChar::is(char) || Token::is_space_token(Some(char)) {
             temp.push(*char);
           } else {
             return Err(self.errormsg(index).err().unwrap());
@@ -866,7 +859,7 @@ impl NewSelector {
         let (index, temp, _end) = arg;
         let (_prev, char, next) = charword;
         if *char == '@' && next == Some(&'{') {
-          if temp.len() > 0 {
+          if !temp.is_empty() {
             list.push(SelectVarText::Txt(temp.poly()));
           }
           temp.clear();
@@ -876,7 +869,7 @@ impl NewSelector {
           record = true
         } else if *char == '}' && record {
           temp.push(*char);
-          if temp.len() > 0 {
+          if !temp.is_empty() {
             list.push(SelectVarText::Var(temp.poly()));
           } else {
             return Err(format!(
@@ -895,7 +888,7 @@ impl NewSelector {
     )?;
 
     let mut new_content = "".to_string();
-    if list.len() > 0 {
+    if !list.is_empty() {
       for tt in list {
         if let SelectVarText::Txt(t) = tt {
           new_content += &t;

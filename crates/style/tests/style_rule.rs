@@ -1,7 +1,7 @@
-use crate::extend::string::StringExtend;
-use crate::new_less::context::Context;
-use crate::new_less::style_rule::StyleRuleNode;
-use crate::new_less::var::HandleResult;
+use rspack_style::extend::string::StringExtend;
+use rspack_style::new_less::context::Context;
+use rspack_style::new_less::style_rule::StyleRuleNode;
+use rspack_style::new_less::var::HandleResult;
 
 #[test]
 fn test_style_rule_parse() {

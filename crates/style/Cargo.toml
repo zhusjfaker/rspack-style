@@ -1,0 +1,31 @@
+[package]
+name = "rspack_style"
+version = "0.1.12"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/zhusjfaker/rust-less.git"
+keywords = ["style", "less", "css", "rust-toolkit"]
+readme = "../../readme.md"
+description = "a rust toolkit bundled for front-end style files"
+include = [
+    "**/*.rs",
+    "js-lib/**/*.js",
+    "js-lib/*.js",
+    "js-lib/**/*.js.map",
+    "Cargo.toml",
+]
+
+[dependencies]
+regex = "1.5.4"
+serde = { version = "1.0.133", features = ["derive", "rc"] }
+serde_json = "1.0.74"
+fasteval = "0.2.4"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+strum = { version = "0.23", features = ["derive"] }
+tempfile = "3.3.0"
+
+
+[dev-dependencies]
+derivative = "2.2.0"
+tokio = { version = "1.15.0", features = ["full"] }
+futures = "0.3.19"

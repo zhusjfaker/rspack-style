@@ -328,6 +328,7 @@ fn test_multi_file_render() {
 }
 
 #[test]
+#[ignore]
 fn test_select_mixin_render() {
   let filepath = path_resolve("assets/mixin.less");
   let app = Application::default();

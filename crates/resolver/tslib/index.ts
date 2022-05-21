@@ -1,5 +1,7 @@
 import less from "less";
 import LessAliasesPlugin from "./plugin";
+import fs from 'fs';
+import path from 'path';
 
 function get_argv(key: string) {
     let list = process.argv;
@@ -12,16 +14,13 @@ function get_argv(key: string) {
 }
 
 async function main() {
-    let content = get_argv("content");
     let option_value = get_argv("option");
     let options = undefined;
     if (option_value) {
         options = JSON.parse(option_value);
     }
-    if (content) {
-        content = JSON.parse(content)?.content;
-    }
-    if (content && options?.filename) {
+    if (options?.filename) {
+        const content = fs.readFileSync(options.filename).toString("utf8");
         return handle(content, options)
     }
 }
@@ -38,21 +37,20 @@ export function handle(content: string, options: any) {
     }
 
     less.render(content, {
-      paths: [
-        ...(options?.paths || ['node_modules']),
-        ...(options?.root ? [options.root] : []),
-      ],
-      plugins: [new LessAliasesPlugin(options.filename, callback_error)]
+        paths: [
+            ...(options?.paths || ['node_modules']),
+            ...(options?.root ? [options.root] : []),
+        ],
+        plugins: [new LessAliasesPlugin(options.filename, callback_error)]
     }).then(res => {
-      process.stdout.write(res.css);
+        process.stdout.write(res.css);
     }).catch(ex => {
-      console.log(ex);
-      setTimeout(() => {
-        process.exit(1);  
-      }, 500);
+        console.log(ex);
+        setTimeout(() => {
+            process.exit(1);
+        }, 500);
     })
 }
-
 
 
 main();

@@ -218,11 +218,11 @@ impl FileNode {
       context_value.get_parse_cache(&abs_path)?
     };
     // 缓存里有的话 直接跳出
-    if let Some(node_wrap_value) = node {
-      return Ok(node_wrap_value);
+    if let Some(node) = node {
+      return Ok(node);
     }
     let text_content = content.clone();
-    let charlist = content.tocharlist();
+    let charlist = content.to_char_vec();
     let mut locmap: Option<LocMap> = None;
     if option.sourcemap {
       locmap = Some(FileInfo::get_loc_by_content(&charlist));
@@ -324,7 +324,7 @@ impl FileNode {
       content = content_transform_fn(filename.as_str(), content.as_str())?;
     }
     let text_content: String = content.clone();
-    let charlist = text_content.tocharlist();
+    let charlist = text_content.to_char_vec();
     let cp_context = context.clone();
     let option = {
       let sync_context = cp_context.lock().unwrap();

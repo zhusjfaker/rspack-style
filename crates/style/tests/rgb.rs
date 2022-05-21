@@ -56,7 +56,7 @@ fn test_color_render() {
   let res = 0;
 
   vars_list.into_iter().for_each(
-    |tt| match ValueNode::new(tt.tocharlist(), None, None, None) {
+    |tt| match ValueNode::new(tt.to_char_vec(), None, None, None) {
       Ok(mut obj) => {
         ValueNode::scan_rgb_expr_calc_replace(&mut obj.word_ident_list).unwrap();
         println!("{:#?}", obj.word_ident_list);

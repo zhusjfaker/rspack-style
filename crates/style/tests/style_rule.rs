@@ -12,7 +12,7 @@ fn test_style_rule_parse() {
   ];
   let mut haserror = 0;
   list.into_iter().for_each(|tt| {
-    match StyleRuleNode::new(tt.tocharlist(), None, None, None, Context::default()) {
+    match StyleRuleNode::new(tt.to_char_vec(), None, None, None, Context::default()) {
       HandleResult::Success(obj) => {
         haserror += 0;
         let json = serde_json::to_string_pretty(&obj).unwrap();
@@ -36,7 +36,7 @@ fn test_style_rule_error_parse() {
   let mut haserror = 0;
   let list = vec![r#"font-size:: 10px;"#.to_string()];
   list.into_iter().for_each(|tt| {
-    match StyleRuleNode::new(tt.tocharlist(), None, None, None, Context::default()) {
+    match StyleRuleNode::new(tt.to_char_vec(), None, None, None, Context::default()) {
       HandleResult::Success(obj) => {
         haserror += 1;
         println!("{:#?}", obj);

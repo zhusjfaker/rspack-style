@@ -115,7 +115,7 @@ impl ImportNode {
       context,
     };
     if let Some(Value::String(content)) = map.get("content") {
-      obj.charlist = content.tocharlist();
+      obj.charlist = content.to_char_vec();
     } else {
       return Err("deserializer ImportNode has error -> content is empty!".to_string());
     }

@@ -240,8 +240,8 @@ impl Context {
     obj.modules = need_modules;
     if let Some(Value::String(origin_txt_content)) = json_origin_txt_content {
       obj.origin_txt_content = origin_txt_content.to_string();
-      obj.hash_perfix = StyleHash::generate_css_module_hash(&obj.disk_location, origin_txt_content);
-      obj.origin_charlist = obj.origin_txt_content.tocharlist();
+      obj.hash_perfix = StyleHash::generate_css_module_hash(&obj.disk_location, &origin_txt_content);
+      obj.origin_charlist = obj.origin_txt_content.to_char_vec();
     } else {
       return Err("deserializer FileNode -> origin_txt_content is empty!".to_string());
     }

@@ -63,7 +63,7 @@ impl ValueNode {
   }
 
   fn scan_var_ident_from_string_const(&self, txt: &str) -> Result<String, String> {
-    let list = txt.to_string().tocharlist();
+    let list = txt.to_string().to_char_vec();
     let mut res = "".to_string();
     let mut index = 0;
     let mut var = "".to_string();
@@ -87,7 +87,7 @@ impl ValueNode {
       } else if !var.is_empty() {
         var.push(*current);
         if *current == '}' {
-          let var_ident = format!("@{}", var.tocharlist()[2..var.len() - 1].to_vec().poly());
+          let var_ident = format!("@{}", var.to_char_vec()[2..var.len() - 1].to_vec().poly());
           let var_node_value = self.get_var_by_key(
             var_ident.as_str(),
             self.parent.clone(),

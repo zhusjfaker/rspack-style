@@ -28,7 +28,7 @@ fn test_value_parse() {
   ];
   let mut haserror = 0;
   vars_list.into_iter().for_each(
-    |tt| match ValueNode::new(tt.tocharlist(), None, None, None) {
+    |tt| match ValueNode::new(tt.to_char_vec(), None, None, None) {
       Ok(obj) => {
         println!("{:#?}", obj);
       }

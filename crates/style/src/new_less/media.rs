@@ -77,7 +77,7 @@ impl MediaQuery {
       parent,
     };
     if let Some(Value::String(content)) = map.get("content") {
-      media.charlist = content.tocharlist();
+      media.charlist = content.to_char_vec();
     } else {
       return Err("deserializer MediaQuery has error -> charlist is empty!".to_string());
     }

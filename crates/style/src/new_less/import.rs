@@ -143,9 +143,9 @@ impl ImportNode {
   ///
   /// 报错信息
   ///
-  pub fn error_msg(&self, index: &usize) -> String {
+  pub fn error_msg(&self, index: usize) -> String {
     let error_loc = self.map.get(index).unwrap();
-    let char = self.charlist.get(*index).unwrap().to_string();
+    let char = self.charlist.get(index).unwrap().to_string();
     format!(
       "text {}, char {} is not allow, line is {} col is {}",
       &self.charlist.poly(),
@@ -175,7 +175,7 @@ impl ImportNode {
           if Token::is_token(Some(char)) {
             if ('\'' == *char && has_apost) || ('"' == *char && has_quote) {
               if *index != charlist.len() - 2 {
-                return Err(self.error_msg(index));
+                return Err(self.error_msg(*index));
               } else {
                 has_apost = false;
                 has_quote = false;
@@ -194,11 +194,11 @@ impl ImportNode {
             } else if '"' == *char {
               has_quote = true;
             } else {
-              return Err(self.error_msg(index));
+              return Err(self.error_msg(*index));
             }
           }
         } else {
-          return Err(self.error_msg(index));
+          return Err(self.error_msg(*index));
         }
         Ok(())
       }),
@@ -209,7 +209,7 @@ impl ImportNode {
       }
     };
     if has_apost || has_quote {
-      return Err(self.error_msg(&(self.charlist.len() - 2)));
+      return Err(self.error_msg(self.charlist.len() - 2));
     }
     self.parse_hook_url = path;
     // 处理递归解析 若节点不存在 则 不进行处理

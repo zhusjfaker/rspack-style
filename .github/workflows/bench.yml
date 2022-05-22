@@ -1,0 +1,31 @@
+name: Criterion.rs Example
+on: [pull_request]
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  benchmark:
+    name: Run Criterion.rs benchmark example
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: rustup toolchain update nightly && rustup default nightly
+      - name: Run benchmark
+        run: cargo +nightly bench -- --output-format bencher | tee output.txt
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'cargo'
+          output-file-path: output.txt
+          auto-push: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-always: true
+          # output-file-path: output.txt
+          # github-token: ${{ secrets.GITHUB_TOKEN }}
+          # # auto-push: true
+          # # Show alert with commit comment on detecting possible performance regression
+          # alert-threshold: '200%'
+          # # comment-on-alert: true
+          # # fail-on-alert: true

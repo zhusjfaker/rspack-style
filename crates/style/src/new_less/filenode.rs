@@ -258,6 +258,7 @@ impl FileNode {
   pub fn create_disklocation(filepath: String, context: ParseContext) -> Result<String, String> {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
     let res = obj.code_gen()?;
+
     let mut sync_context = context.lock().unwrap();
     sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();

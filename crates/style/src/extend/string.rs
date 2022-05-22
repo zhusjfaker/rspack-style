@@ -1,6 +1,6 @@
 #[allow(non_snake_case)]
 pub trait StringExtend {
- fn to_char_vec(&self) -> Vec<char>;
+  fn to_char_vec(&self) -> Vec<char>;
   fn simple_compare(&self) -> std::string::String;
 }
 

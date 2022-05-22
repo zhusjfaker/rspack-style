@@ -53,7 +53,7 @@ fn criterion_benchmark(c: &mut Criterion) {
           tabspaces: 2,
           modules: None,
           hooks: ParseHooks {
-              content_interceptor: None,
+            content_interceptor: None,
             ..Default::default()
           },
         },

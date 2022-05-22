@@ -13,3 +13,4 @@ node_modules
 .pnp.*
 *.node
 
+perf.data*

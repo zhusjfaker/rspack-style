@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: boa-dev/criterion-compare-action@v3.0.0
+      - uses: boa-dev/criterion-compare-action@main
         with:
           # cwd: "crates/style"
           # Optional. Compare only this benchmark target

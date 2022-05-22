@@ -38,3 +38,6 @@ harness = false
 [[bench]]
 name = "parse"
 harness = false
+
+[lib]
+bench = false

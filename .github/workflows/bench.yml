@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: rustup toolchain update nightly && rustup default nightly
       - name: Run benchmark
-        run: cd examples/criterion-rs && cargo +nightly bench -- --output-format bencher | tee output.txt
+        run: cargo +nightly bench -- --output-format bencher | tee output.txt
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
@@ -29,3 +29,4 @@ jobs:
           alert-threshold: '200%'
           comment-on-alert: true
           fail-on-alert: true
+          comment-always: true

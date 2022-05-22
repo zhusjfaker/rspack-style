@@ -1,4 +1,3 @@
-use crate::new_less::interceptor::LessInterceptor;
 use std::sync::Arc;
 
 pub type ImportAliasHook =
@@ -24,10 +23,7 @@ impl Default for ParseHooks {
   fn default() -> Self {
     ParseHooks {
       import_alias: None,
-      content_interceptor: Some(Arc::new(|filepath, content| {
-        LessInterceptor::handle(filepath, content)
-      })),
-      // content_interceptor: None,
+      content_interceptor: None,
     }
   }
 }

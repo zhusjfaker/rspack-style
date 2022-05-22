@@ -2,6 +2,8 @@ use crate::new_less::context::{Context, ParseContext};
 use crate::new_less::filenode::FileNode;
 use crate::new_less::option::ParseOption;
 use std::collections::HashMap;
+use std::sync::Arc;
+use crate::new_less::interceptor::LessInterceptor;
 
 #[derive(Debug)]
 pub struct Application {
@@ -75,5 +77,16 @@ impl Application {
   ///
   pub fn default() -> Application {
     Self::new(Default::default(), None).unwrap()
+  }
+
+
+  ///
+  /// 增加 less.js 的 内容变化
+  ///
+  pub fn add_lessjs_content_interceptor(&mut self) {
+    let mut context = self.context.lock().unwrap();
+    context.option.hooks.content_interceptor = Some(Arc::new(|filepath, content| {
+      LessInterceptor::handle(filepath, content)
+    }));
   }
 }

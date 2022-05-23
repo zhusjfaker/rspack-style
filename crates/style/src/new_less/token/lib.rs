@@ -21,19 +21,22 @@ impl Token {
     Token(value)
   }
 
-  pub fn get_token() -> Vec<char> {
-    vec![
-      '.', ',', '!', '?', '^', '#', '~', ' ', '\n', '\r', '|', ':', '%', '$', '&', '[', ']', '@',
-      '/', '+', '>', '<', '}', '{', '*', '-', '=', '`', '(', ')', ';', '\'', '"', '\\',
-    ]
-  }
+  // pub fn get_token() -> Vec<char> {
+  //   vec![]
+  // }
 
   ///
   /// 是否是 词根
   ///
   pub fn is_token(char: Option<&char>) -> bool {
     if let Some(cc) = char {
-      Token::get_token().into_iter().any(|x| x == *cc)
+      match cc {
+        '.' | '|' | '!' | '?' | '^' | '#' | '~' | ' ' | '\n' | '\r' | ':' | '%' | '$' | '&'
+        | '[' | ']' | '@' | '/' | '+' | '>' | '<' | '}' | '{' | '*' | '-' | '=' | '`' | '('
+        | ')' | ';' | '\'' | '"' | '\\' | ',' => true,
+        _ => false,
+      }
+      // Token::get_token().into_iter().any(|x| x == *cc)
     } else {
       false
     }

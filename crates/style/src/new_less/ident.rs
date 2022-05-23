@@ -1,34 +1,35 @@
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
+use smol_str::SmolStr;
 
 #[derive(Clone, Serialize, Debug, PartialEq, Deserialize)]
 #[serde(tag = "type", content = "value")]
 pub enum IdentType {
   // 10px 100% 100vh
-  Number(String, Option<String>),
+  Number(SmolStr, Option<SmolStr>),
   // + - * /
-  Operator(String),
+  Operator(SmolStr),
   // @abc
-  Var(String),
+  Var(SmolStr),
   // $abc
-  Prop(String),
+  Prop(SmolStr),
   // @{abc}
-  InsertVar(String),
+  InsertVar(SmolStr),
   // "abc"
-  StringConst(String),
+  StringConst(SmolStr),
   // solid
-  Word(String),
+  Word(SmolStr),
   // #abc17fc
-  Color(String),
+  Color(SmolStr),
   // !important
-  KeyWord(String),
+  KeyWord(SmolStr),
   // " " ,"\n"
   Space,
   //  ~"(min-width: 768px)" (min-width: 768px) -> Only for MediaRule
-  Escaping(String),
+  Escaping(SmolStr),
   // ( ) [ ] 计算运算可能性
-  Brackets(String),
+  Brackets(SmolStr),
 }
 
 impl IdentType {
@@ -58,18 +59,18 @@ impl IdentType {
   ///
   /// 计算取值
   ///
-  pub fn calc_value(list: Vec<Self>) -> Result<Self, String> {
+  pub fn calc_value(list: &Vec<Self>) -> Result<Self, String> {
     let mut exper = "".to_string();
-    let mut base_unit: Option<String> = None;
+    let mut base_unit: Option<SmolStr> = None;
     for item in list {
       match item {
         IdentType::Number(value, unit) => {
           let mut convert_value = value.clone();
           if base_unit.is_none() && unit.is_some() {
-            base_unit = unit;
+            base_unit = unit.clone();
           } else if base_unit.is_some() && unit.is_some() {
             // todo 进行单位转化
-            convert_value = value;
+            convert_value = value.clone();
           }
           exper += &convert_value;
         }
@@ -92,6 +93,6 @@ impl IdentType {
         return Err(format!("{} \n exper -> {}", msg, exper));
       }
     };
-    Ok(Self::Number(final_value.to_string(), base_unit))
+    Ok(Self::Number(final_value.to_string().into(), base_unit))
   }
 }

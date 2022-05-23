@@ -167,7 +167,7 @@ impl StyleRuleNode {
   /// 报错信息
   ///
   pub fn error_msg(&self, index: &usize) -> String {
-    let error_loc = self.map.get(index).unwrap();
+    let error_loc = self.map.get(*index).unwrap();
     let char = self.charlist.get(*index).unwrap().to_string();
     format!(
       "text {}, char {} is not allow, line is {} col is {}",
@@ -233,7 +233,7 @@ impl StyleRuleNode {
     }
     let node = ValueNode::new(
       self.charlist[trim_start..end].to_vec(),
-      self.map.get(start),
+      self.map.get(*start),
       self.parent.clone(),
       self.fileinfo.clone(),
     )?;

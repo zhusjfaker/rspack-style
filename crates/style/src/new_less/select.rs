@@ -380,7 +380,7 @@ impl NewSelector {
       safe_index = self.charlist.len() - 1;
     }
     let char = *self.charlist.get(safe_index).unwrap();
-    let error_loc = self.map.get(&safe_index).unwrap();
+    let error_loc = self.map.get(safe_index).unwrap();
     Err(format!(
       "select text {}, char {} is not allow, line is {} col is {}",
       self.charlist.poly(),

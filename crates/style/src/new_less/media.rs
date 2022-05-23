@@ -93,8 +93,8 @@ impl MediaQuery {
   ///
   /// 打印错误信息
   ///
-  pub fn errormsg(&self, index: &usize) -> Result<(), String> {
-    let char = *self.charlist.get(*index).unwrap();
+  pub fn errormsg(&self, index: usize) -> Result<(), String> {
+    let char = *self.charlist.get(index).unwrap();
     let error_loc = self.map.get(index).unwrap();
     Err(format!(
       "select text {}, char {} is not allow,line is {} col is {}",
@@ -173,7 +173,7 @@ impl MediaQuery {
               // 加冒号之前 先判断是否是有效 key
               *hasend = true;
             } else {
-              return Err(self.errormsg(index).err().unwrap());
+              return Err(self.errormsg(*index).err().unwrap());
             }
           } else if Token::is_space_token(Some(char)) {
             if Token::is_space_token(next) {
@@ -184,7 +184,7 @@ impl MediaQuery {
           } else if *char == '-' {
             temp.push('-');
           } else {
-            return Err(self.errormsg(index).err().unwrap());
+            return Err(self.errormsg(*index).err().unwrap());
           }
         } else {
           temp.push(*char);
@@ -219,10 +219,10 @@ impl MediaQuery {
             if temp.is_empty() {
               temp.push('-');
             } else {
-              return Err(self.errormsg(index).err().unwrap());
+              return Err(self.errormsg(*index).err().unwrap());
             }
           } else {
-            return Err(self.errormsg(index).err().unwrap());
+            return Err(self.errormsg(*index).err().unwrap());
           }
         } else {
           temp.push(*char);
@@ -280,7 +280,7 @@ impl MediaQuery {
           if Token::is_space_token(Some(char)) {
             *hasend = true;
           } else {
-            return Err(self.errormsg(index).err().unwrap());
+            return Err(self.errormsg(*index).err().unwrap());
           }
         } else {
           temp.push(*char);
@@ -297,7 +297,7 @@ impl MediaQuery {
     if TokenMediaLogic::is(&word) || TokenMediaType::is(&word) {
       Ok((word, jump))
     } else {
-      Err(self.errormsg(&jump).err().unwrap())
+      Err(self.errormsg(jump).err().unwrap())
     }
   }
 
@@ -340,10 +340,10 @@ impl MediaQuery {
                 Err(msg) => Err(msg),
               }
             } else {
-              Err(self.errormsg(index).err().unwrap())
+              Err(self.errormsg(*index).err().unwrap())
             }
           } else {
-            Err(self.errormsg(index).err().unwrap())
+            Err(self.errormsg(*index).err().unwrap())
           }
         } else {
           let (word, jump) = match self.parse_media_logicword(index) {

@@ -10,7 +10,7 @@ use rspack_style::new_less::loc::LocMap;
 fn test_loc() {
   let content = readfile(path_resolve("assets/loc.less").as_str()).unwrap();
   let obj = LocMap::new(&content.to_char_vec());
-  let c = obj.get(&0).unwrap();
+  let c = obj.get(0).unwrap();
   let x = obj.getloc(4, 10).unwrap();
   assert_eq!(c.char, '@');
   assert_eq!(x.char, '@');

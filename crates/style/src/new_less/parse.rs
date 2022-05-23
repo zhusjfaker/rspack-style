@@ -214,7 +214,7 @@ pub trait Parse {
       if wirte_comment {
         // 如果启用 sourcemap 则记录坐标
         if option.sourcemap && *char != '\r' && *char != '\n' && record_loc.is_none() {
-          record_loc = Some(locmap.as_ref().unwrap().get(&index).unwrap());
+          record_loc = Some(locmap.as_ref().unwrap().get(index).unwrap());
         }
         if comment_start_index.is_none() {
           comment_start_index = Some(index);
@@ -230,7 +230,7 @@ pub trait Parse {
           && *char != '\n'
           && record_loc.is_none()
         {
-          record_loc = Some(locmap.as_ref().unwrap().get(&index).unwrap());
+          record_loc = Some(locmap.as_ref().unwrap().get(index).unwrap());
         }
         // 存入普通字符串
         temp_word.push(*char);

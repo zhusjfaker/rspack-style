@@ -120,7 +120,7 @@ impl ValueNode {
   /// 报错信息
   ///
   pub fn error_msg(&self, index: &usize) -> String {
-    let error_loc = self.map.get(index).unwrap();
+    let error_loc = self.map.get(*index).unwrap();
     let char = self.charlist.get(*index).unwrap().to_string();
     format!(
       "text {}, char {} is not allow, line is {} col is {}",

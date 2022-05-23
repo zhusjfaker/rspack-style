@@ -20,9 +20,10 @@ regex = "1.5.4"
 serde = { version = "1.0.133", features = ["derive", "rc"] }
 serde_json = "1.0.74"
 fasteval = "0.2.4"
-uuid = { version = "0.8", features = ["serde", "v4"] }
+uuid = { version = "1.0.0", features = ["serde", "v4", "fast-rng"] }
 strum = { version = "0.23", features = ["derive"] }
 tempfile = "3.3.0"
+smol_str = "0.1.23"
 
 
 [dev-dependencies]

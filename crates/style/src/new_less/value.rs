@@ -9,6 +9,7 @@ use crate::new_less::token::lib::Token;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
+use smol_str::SmolStr;
 use std::fmt::{Debug, Formatter};
 
 #[derive(Clone)]
@@ -457,7 +458,7 @@ impl ValueNode {
           }
         } else if *char == '@' {
           let (var, end) = self.parse_value_var(index)?;
-          self.word_ident_list.push(IdentType::Var(var));
+          self.word_ident_list.push(IdentType::Var(var.into()));
           *index = end;
         }
         // 处理结尾词 ignore
@@ -476,12 +477,12 @@ impl ValueNode {
             self.error_msg(index)
           ));
         } else if *char == '~' {
-          self.word_ident_list.push(IdentType::Word('~'.to_string()));
+          self.word_ident_list.push(IdentType::Word("~".into()));
         }
         // 处理 引用
         else if *char == '#' {
           let (color, end) = self.parse_value_word(index)?;
-          self.word_ident_list.push(IdentType::Color(color));
+          self.word_ident_list.push(IdentType::Color(color.into()));
           *index = end;
         }
         // 处理 keyword
@@ -492,11 +493,11 @@ impl ValueNode {
           {
             self
               .word_ident_list
-              .push(IdentType::KeyWord("!important".to_string()));
+              .push(IdentType::KeyWord("!important".into()));
             *index += 10;
           } else {
             let (word, end) = self.parse_value_word(index)?;
-            self.word_ident_list.push(IdentType::Word(word));
+            self.word_ident_list.push(IdentType::Word(word.into()));
             *index = end;
           }
         }
@@ -505,7 +506,7 @@ impl ValueNode {
           let (string_const, end) = self.parse_value_string_const(index)?;
           self
             .word_ident_list
-            .push(IdentType::StringConst(string_const));
+            .push(IdentType::StringConst(string_const.into()));
           *index = end;
         }
         // 处理括号
@@ -517,7 +518,7 @@ impl ValueNode {
                 vaildate_res = res;
                 self
                   .word_ident_list
-                  .push(IdentType::Brackets(char.to_string()));
+                  .push(IdentType::Brackets(char.to_string().into()));
               }
               Err(..) => {
                 return Err(self.error_msg(index));
@@ -531,7 +532,7 @@ impl ValueNode {
         else if Self::is_operator(char) {
           if *char == '-' && prev == Some(&' ') && Self::is_number(Some(next.unwrap_or(&' '))) {
             let ((val, unit), end) = self.parse_value_number(index)?;
-            self.word_ident_list.push(IdentType::Number(val, unit));
+            self.word_ident_list.push(IdentType::Number(val.into(), unit.map(SmolStr::new)));
             *index = end;
           } else {
             let last_item = self.find_prev_no_space_ident();
@@ -543,10 +544,10 @@ impl ValueNode {
             {
               self
                 .word_ident_list
-                .push(IdentType::Operator(char.to_string()));
+                .push(IdentType::Operator(char.to_string().into()));
             } else {
               let (word, end) = self.parse_value_word(index)?;
-              self.word_ident_list.push(IdentType::Word(word));
+              self.word_ident_list.push(IdentType::Word(word.into()));
               *index = end;
             }
           }
@@ -554,13 +555,13 @@ impl ValueNode {
         // 处理 数值
         else if Self::is_number(Some(char)) {
           let ((val, unit), end) = self.parse_value_number(index)?;
-          self.word_ident_list.push(IdentType::Number(val, unit));
+          self.word_ident_list.push(IdentType::Number(val.into(), unit.map(SmolStr::new)));
           *index = end;
         }
         // 处理单词
         else {
           let (word, end) = self.parse_value_word(index)?;
-          self.word_ident_list.push(IdentType::Word(word));
+          self.word_ident_list.push(IdentType::Word(word.into()));
           *index = end;
         }
         Ok(())

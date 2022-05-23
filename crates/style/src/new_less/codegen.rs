@@ -119,15 +119,18 @@ impl ValueNode {
       } else if let IdentType::StringConst(ident_var) = ident {
         // calc ~"" | ~''
         let prev_ident = if index > 0 { list.get(index - 1) } else { None };
-        if prev_ident != Some(&IdentType::Word('~'.to_string())) {
+        if prev_ident != Some(&IdentType::Word("~".into())) {
           let no_var_str_const = self.scan_var_ident_from_string_const(ident_var)?;
-          string_handle_vec.push((vec![index], vec![IdentType::StringConst(no_var_str_const)]));
+          string_handle_vec.push((
+            vec![index],
+            vec![IdentType::StringConst(no_var_str_const.into())],
+          ));
         } else {
           let no_var_str_const = self.scan_var_ident_from_string_const(ident_var)?;
           string_handle_vec.push((
             vec![index - 1, index],
             vec![IdentType::Word(
-              no_var_str_const.replace('\'', "").replace('\"', ""),
+              no_var_str_const.replace('\'', "").replace('\"', "").into(),
             )],
           ));
         }
@@ -137,8 +140,8 @@ impl ValueNode {
     for (index, ident_list) in handle_vec {
       list.remove(index);
       let mut setp = 0;
-      ident_list.iter().for_each(|x| {
-        list.insert(index + setp, x.clone());
+      ident_list.into_iter().for_each(|x| {
+        list.insert(index + setp, x);
         setp += 1;
       });
     }
@@ -149,8 +152,8 @@ impl ValueNode {
         remove_count += 1;
       });
       let mut setp = 0;
-      ident_list.iter().for_each(|x| {
-        list.insert(index[0] + setp, x.clone());
+      ident_list.into_iter().for_each(|x| {
+        list.insert(index[0] + setp, x);
         setp += 1;
       });
     }
@@ -214,11 +217,10 @@ impl ValueNode {
         } else {
           break;
         }
-      } else if current == &IdentType::Brackets(')'.to_string()) {
+      } else if current == &IdentType::Brackets(")".into()) {
         res.0 = Some(index);
         break;
-      } else if !matches!(current, IdentType::Space) && current != &IdentType::Word(','.to_string())
-      {
+      } else if !matches!(current, IdentType::Space) && current != &IdentType::Word(",".into()) {
         break;
       }
       index += 1;
@@ -248,12 +250,12 @@ impl ValueNode {
         } else {
           break;
         }
-      } else if current == &IdentType::Brackets(')'.to_string()) {
+      } else if current == &IdentType::Brackets(")".into()) {
         res.0 = Some(index);
         break;
       } else if !matches!(current, IdentType::Space)
-        && current != &IdentType::Word(','.to_string())
-        && current != &IdentType::Operator('/'.to_string())
+        && current != &IdentType::Word(",".into())
+        && current != &IdentType::Operator("/".into())
       {
         break;
       }
@@ -277,13 +279,12 @@ impl ValueNode {
     while index < list.len() {
       let current = Self::get_safe(index, list).unwrap();
       let next = Self::get_safe(index + 1, list);
-      if *current == IdentType::Word("rgb".to_string())
-        && next == Some(&IdentType::Brackets('('.to_string()))
+      if *current == IdentType::Word("rgb".into()) && next == Some(&IdentType::Brackets("(".into()))
       {
         perhaps_rgb_vec.push(index);
         perhaps_rgba_vec.push(index);
-      } else if *current == IdentType::Word("rgba".to_string())
-        && next == Some(&IdentType::Brackets('('.to_string()))
+      } else if *current == IdentType::Word("rgba".into())
+        && next == Some(&IdentType::Brackets("(".into()))
       {
         perhaps_rgba_vec.push(index);
       }
@@ -295,7 +296,7 @@ impl ValueNode {
       if let (Some(mut end), corlor_list) = Self::match_rgb_expr_calc(start + 1 + extra, list) {
         // 计算 替换 词根
         let rgb_value = rgb_calc(corlor_list)?;
-        let final_color_word = IdentType::Color(rgb_value);
+        let final_color_word = IdentType::Color(rgb_value.into());
         list.insert(start, final_color_word);
         extra += 1;
         end += extra;
@@ -328,7 +329,7 @@ impl ValueNode {
           if let IdentType::Number(val, unit) = ident {
             if index != corlor_list.len() - 1 {
               color_txt += format!("{}, ", val).as_str();
-            } else if *unit == Some('%'.to_string()) {
+            } else if unit == &Some("%".into()) {
               let num = val.parse::<f64>().unwrap() / 100_f64;
               color_txt += format!("{:.1}", num).as_str();
             } else {
@@ -343,7 +344,7 @@ impl ValueNode {
         }
         color_txt += ")";
 
-        list.insert(start, IdentType::Word(color_txt));
+        list.insert(start, IdentType::Word(color_txt.into()));
         extra += 1;
         end += extra;
         rm_vec.push((start + extra, end));
@@ -371,8 +372,8 @@ impl ValueNode {
     while index < list.len() {
       let current = Self::get_safe(index, list).unwrap();
       let next = Self::get_safe(index + 1, list);
-      if *current == IdentType::Word("calc".to_string())
-        && next == Some(&IdentType::Brackets('('.to_string()))
+      if *current == IdentType::Word("calc".into())
+        && next == Some(&IdentType::Brackets("(".into()))
       {
         calc_vec.push(index + 1);
       }
@@ -384,9 +385,9 @@ impl ValueNode {
       while cur < list.len() {
         let current = Self::get_mut_safe(cur, list).unwrap();
         // 增减开始
-        if current == &IdentType::Brackets('('.to_string()) {
+        if current == &IdentType::Brackets("(".into()) {
           level += 1;
-        } else if current == &IdentType::Brackets(')'.to_string()) {
+        } else if current == &IdentType::Brackets(")".into()) {
           level -= 1;
         }
         // 处理逻辑
@@ -430,7 +431,6 @@ impl ValueNode {
     // 计算词性
     let mut calc_list: Vec<IdentType> = vec![];
     // 下标
-    let mut index = 0;
 
     // 逆向查找第一个 非空格 的元素
     // 左值 重要
@@ -444,9 +444,9 @@ impl ValueNode {
     };
 
     // 遍历 范式
-    while index < list.len() {
+    for now in list {
       // 比对词性
-      let now = list.get(index).unwrap().clone();
+      // let now = list.get(index).unwrap().clone();
       match now {
         IdentType::Operator(op) => {
           if !calc_list.is_empty() {
@@ -470,7 +470,7 @@ impl ValueNode {
             {
               calc_list.push(now);
             } else if matches!(last_calc_item, IdentType::Number(..)) {
-              let calc_number = IdentType::calc_value(calc_list.clone())?;
+              let calc_number = IdentType::calc_value(&calc_list.clone())?;
               nature_list.push(calc_number);
               calc_list.clear();
               calc_list.push(now);
@@ -491,7 +491,7 @@ impl ValueNode {
         | IdentType::Color(op)
         | IdentType::KeyWord(op) => {
           if !calc_list.is_empty() {
-            let calc_number = IdentType::calc_value(calc_list.clone())?;
+            let calc_number = IdentType::calc_value(&calc_list.clone())?;
             nature_list.push(calc_number);
             calc_list.clear();
           }
@@ -526,7 +526,7 @@ impl ValueNode {
                   calc_list.push(IdentType::Brackets(br));
                 } else {
                   if !calc_list.is_empty() {
-                    let calc_number = IdentType::calc_value(calc_list.clone())?;
+                    let calc_number = IdentType::calc_value(&calc_list)?;
                     nature_list.push(calc_number);
                     calc_list.clear();
                   }
@@ -534,7 +534,7 @@ impl ValueNode {
                 }
               } else {
                 if !calc_list.is_empty() {
-                  let calc_number = IdentType::calc_value(calc_list.clone())?;
+                  let calc_number = IdentType::calc_value(&calc_list)?;
                   nature_list.push(calc_number);
                   calc_list.clear();
                 }
@@ -543,7 +543,7 @@ impl ValueNode {
             }
           } else {
             if !calc_list.is_empty() {
-              let calc_number = IdentType::calc_value(calc_list.clone())?;
+              let calc_number = IdentType::calc_value(&calc_list)?;
               nature_list.push(calc_number);
               calc_list.clear();
             }
@@ -551,54 +551,55 @@ impl ValueNode {
           }
         }
       }
-      index += 1;
+      // index += 1;
     }
+    // while index < list.len() {}
     if !calc_list.is_empty() {
-      let calc_number = IdentType::calc_value(calc_list.clone())?;
+      let calc_number = IdentType::calc_value(&calc_list)?;
       nature_list.push(calc_number);
       calc_list.clear();
     }
 
-    let mut res: Vec<String> = vec![];
+    let mut res = String::new();
     for (index, item) in nature_list.iter().enumerate() {
       let last = if index > 0 {
         Some(nature_list.get(index - 1).unwrap().clone())
       } else {
         None
       };
+      // let last = Some(nature_list.get(index - 1).unwrap().clone());
 
       match item {
         IdentType::Number(value, unit) => {
-          let add_char =
-            "".to_string() + value + unit.clone().unwrap_or_else(|| "".to_string()).as_str();
           if matches!(last, Some(IdentType::Word(..)))
             || matches!(last, Some(IdentType::Number(..)))
           {
-            res.push(" ".to_string());
+            res += " ";
           }
-          res.push(add_char);
+          res.push_str(value);
+          res.push_str(&unit.clone().unwrap_or_default());
         }
         IdentType::Word(char) => {
           if matches!(last, Some(IdentType::Word(..)))
             || matches!(last, Some(IdentType::Number(..)))
           {
-            res.push(" ".to_string());
+            res.push_str(" ");
           }
-          res.push(char.to_string());
+          res.push_str(char);
         }
         IdentType::Space => {
           if !matches!(last, Some(IdentType::Space)) {
-            res.push(" ".to_string());
+            res.push_str(" ");
           }
         }
         IdentType::Brackets(br) => {
           // todo fix single number situation
-          res.push(br.to_string());
+          res.push_str(br);
         }
         _ => {}
       }
     }
 
-    Ok(res.join(""))
+    Ok(res)
   }
 }

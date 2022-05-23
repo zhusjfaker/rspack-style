@@ -6,32 +6,32 @@ use rspack_style::new_less::value::ValueNode;
 #[test]
 fn test_color_calc() {
   let rgb = vec![
-    IdentType::Number("255".to_string(), None),
-    IdentType::Number("255".to_string(), None),
-    IdentType::Number("255".to_string(), None),
+    IdentType::Number("255".into(), None),
+    IdentType::Number("255".into(), None),
+    IdentType::Number("255".into(), None),
   ];
   let res = rgb_calc(rgb.iter().map(|x| x).collect::<Vec<&IdentType>>()).unwrap();
 
   let rgb2 = vec![
-    IdentType::Number("220".to_string(), None),
-    IdentType::Number("220".to_string(), None),
-    IdentType::Number("220".to_string(), None),
+    IdentType::Number("220".into(), None),
+    IdentType::Number("220".into(), None),
+    IdentType::Number("220".into(), None),
   ];
 
   let res2 = rgb_calc(rgb2.iter().map(|x| x).collect::<Vec<&IdentType>>()).unwrap();
 
   let rgb3 = vec![
-    IdentType::Number("112".to_string(), None),
-    IdentType::Number("128".to_string(), None),
-    IdentType::Number("144".to_string(), None),
+    IdentType::Number("112".into(), None),
+    IdentType::Number("128".into(), None),
+    IdentType::Number("144".into(), None),
   ];
 
   let res3 = rgb_calc(rgb3.iter().map(|x| x).collect::<Vec<&IdentType>>()).unwrap();
 
   let rgb4 = vec![
-    IdentType::Number("119".to_string(), None),
-    IdentType::Number("136".to_string(), None),
-    IdentType::Number("153".to_string(), None),
+    IdentType::Number("119".into(), None),
+    IdentType::Number("136".into(), None),
+    IdentType::Number("153".into(), None),
   ];
 
   let res4 = rgb_calc(rgb4.iter().map(|x| x).collect::<Vec<&IdentType>>()).unwrap();

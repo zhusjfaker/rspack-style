@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Copy)]
+#[derive(Debug, Clone, Serialize, Deserialize, Copy, PartialEq)]
 pub struct Loc {
   pub line: usize,
   pub col: usize,
@@ -72,8 +71,36 @@ impl LocMap {
   }
 
   pub fn merge(start: &Loc, chars: &[char]) -> (Self, Loc) {
-    let loc_map = Self::new(chars);
-    let ret_loc = loc_map.get(chars.len() - 1).unwrap();
-    (loc_map, ret_loc)
+    let map = vec![];
+    let mut line = start.line;
+    let mut col = start.col;
+    let mut obj = LocMap { data: map };
+    let mut last: Loc = start.clone();
+    for (index, cc) in chars.iter().enumerate() {
+      let loc: Loc;
+      if *cc != '\r' && *cc != '\n' {
+        loc = Loc {
+          col,
+          line,
+          char: *cc,
+          index,
+        };
+        col += 1;
+      } else {
+        loc = Loc {
+          col,
+          line,
+          char: *cc,
+          index,
+        };
+        col = 1;
+        line += 1;
+      }
+      if index == chars.len() - 1 {
+        last = loc.clone();
+      }
+      obj.data.insert(index, loc);
+    }
+    (obj, last)
   }
 }

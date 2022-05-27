@@ -2,13 +2,14 @@ use crate::extend::string::StringExtend;
 use crate::new_less::context::ParseContext;
 use crate::new_less::fileinfo::{FileInfo, FileRef};
 use crate::new_less::hash::StyleHash;
-use crate::new_less::loc::LocMap;
+use crate::new_less::loc::{Loc, LocMap};
 use crate::new_less::node::{NodeRef, StyleNode};
 use crate::new_less::parse::Parse;
 use crate::new_less::select_node::SelectorNode;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
+use crate::new_less::var::VarRuleNode;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct FileNode {
@@ -403,5 +404,34 @@ impl FileNode {
     sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();
     Ok((map, css_module_content))
+  }
+
+  ///
+  /// 收集 文件 上所有 rule 节点的 loc
+  ///
+  fn collect_loc(node: StyleNode, list: &mut Vec<Option<Loc>>) {
+    if let StyleNode::Rule(rule) = node {
+      list.push(rule.borrow().loc.as_ref().cloned());
+      for child_node in &rule.borrow().block_node {
+        Self::collect_loc(child_node.clone(), list);
+      }
+    } else if let StyleNode::Var(VarRuleNode::StyleRule(style)) = node {
+      list.push(style.loc.as_ref().cloned());
+    } else if let StyleNode::Var(VarRuleNode::Var(var)) = node {
+      list.push(var.loc.as_ref().cloned());
+    } else if let StyleNode::Comment(cc) = node {
+      list.push(cc.loc.as_ref().cloned());
+    }
+  }
+
+  ///
+  ///  收集 文件 上所有 rule 节点的 loc
+  ///
+  pub fn collect_loc_list(&self) -> Vec<Option<Loc>> {
+    let mut list = vec![];
+    for node in &self.info.borrow().block_node {
+      Self::collect_loc(node.clone(), &mut list);
+    }
+    list
   }
 }

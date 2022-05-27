@@ -27,10 +27,10 @@ fn criterion_benchmark(c: &mut Criterion) {
   less_bench!(24, c);
   less_bench!(32, c);
   less_bench!(37, c);
-  less_bench!(41, c);
   less_bench!(42, c);
   less_bench!(43, c);
 
+  // less_bench!(41, c);
 }
 
 criterion_group!(benches, criterion_benchmark);

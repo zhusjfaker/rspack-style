@@ -70,37 +70,27 @@ impl LocMap {
     loc
   }
 
-  pub fn merge(start: &Loc, chars: &[char]) -> (Self, Loc) {
-    let map = vec![];
+  pub fn merge(start: &Loc, chars: &[char]) -> (LocMap, Loc) {
+    let map = Vec::with_capacity(chars.len());
     let mut line = start.line;
     let mut col = start.col;
     let mut obj = LocMap { data: map };
-    let mut last: Loc = start.clone();
     for (index, cc) in chars.iter().enumerate() {
-      let loc: Loc;
+      let loc = Loc {
+        col,
+        line,
+        char: *cc,
+        index,
+      };
       if *cc != '\r' && *cc != '\n' {
-        loc = Loc {
-          col,
-          line,
-          char: *cc,
-          index,
-        };
         col += 1;
       } else {
-        loc = Loc {
-          col,
-          line,
-          char: *cc,
-          index,
-        };
         col = 1;
         line += 1;
-      }
-      if index == chars.len() - 1 {
-        last = loc.clone();
-      }
-      obj.data.insert(index, loc);
+      };
+      obj.data.push(loc);
     }
+    let last = obj.data[chars.len() - 1].clone();
     (obj, last)
   }
 }

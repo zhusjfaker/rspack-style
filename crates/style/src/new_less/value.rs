@@ -532,7 +532,9 @@ impl ValueNode {
         else if Self::is_operator(char) {
           if *char == '-' && prev == Some(&' ') && Self::is_number(Some(next.unwrap_or(&' '))) {
             let ((val, unit), end) = self.parse_value_number(index)?;
-            self.word_ident_list.push(IdentType::Number(val.into(), unit.map(SmolStr::new)));
+            self
+              .word_ident_list
+              .push(IdentType::Number(val.into(), unit.map(SmolStr::new)));
             *index = end;
           } else {
             let last_item = self.find_prev_no_space_ident();
@@ -555,7 +557,9 @@ impl ValueNode {
         // 处理 数值
         else if Self::is_number(Some(char)) {
           let ((val, unit), end) = self.parse_value_number(index)?;
-          self.word_ident_list.push(IdentType::Number(val.into(), unit.map(SmolStr::new)));
+          self
+            .word_ident_list
+            .push(IdentType::Number(val.into(), unit.map(SmolStr::new)));
           *index = end;
         }
         // 处理单词

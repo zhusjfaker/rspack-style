@@ -24,7 +24,23 @@ fn test_loc_rule() {
   let json = serde_json::to_string_pretty(&file).unwrap();
   println!("json->{}", json);
   let list = file.collect_loc_list();
-  assert_eq!(list.contains(&Some(Loc { line: 4, col: 5, char: 'h', index: 5 })), true);
-  assert_eq!(list.contains(&Some(Loc { line: 3, col: 4, char: 'b', index: 1 })), true);
+  assert_eq!(
+    list.contains(&Some(Loc {
+      line: 4,
+      col: 5,
+      char: 'h',
+      index: 5
+    })),
+    true
+  );
+  assert_eq!(
+    list.contains(&Some(Loc {
+      line: 3,
+      col: 4,
+      char: 'b',
+      index: 1
+    })),
+    true
+  );
   println!("list->{:#?}", list);
 }

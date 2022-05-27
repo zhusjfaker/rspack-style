@@ -20,25 +20,17 @@ macro_rules! less_bench {
 
 fn criterion_benchmark(c: &mut Criterion) {
   less_bench!(1, c);
-  less_bench!(2, c);
   less_bench!(3, c);
-  less_bench!(4, c);
   less_bench!(5, c);
-  less_bench!(6, c);
-  less_bench!(7, c);
-  less_bench!(8, c);
-  less_bench!(9, c);
   less_bench!(10, c);
-  less_bench!(11, c);
-  less_bench!(12, c);
-  less_bench!(13, c);
   less_bench!(14, c);
-  less_bench!(15, c);
-  less_bench!(16, c);
-  less_bench!(17, c);
-  less_bench!(18, c);
-  less_bench!(19, c);
-  less_bench!(20, c);
+  less_bench!(24, c);
+  less_bench!(32, c);
+  less_bench!(37, c);
+  less_bench!(42, c);
+  less_bench!(43, c);
+
+  // less_bench!(41, c);
 }
 
 criterion_group!(benches, criterion_benchmark);

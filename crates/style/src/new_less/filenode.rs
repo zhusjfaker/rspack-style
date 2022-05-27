@@ -6,10 +6,10 @@ use crate::new_less::loc::{Loc, LocMap};
 use crate::new_less::node::{NodeRef, StyleNode};
 use crate::new_less::parse::Parse;
 use crate::new_less::select_node::SelectorNode;
+use crate::new_less::var::VarRuleNode;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-use crate::new_less::var::VarRuleNode;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct FileNode {

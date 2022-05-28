@@ -1,8 +1,8 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use rspack_style::new_less::applicationn::Application;
-use rspack_style::new_less::file::path_resolve;
-use rspack_style::new_less::hooks::ParseHooks;
-use rspack_style::new_less::option::ParseOption;
+use rspack_style::style_core::applicationn::Application;
+use rspack_style::style_core::hooks::ParseHooks;
+use rspack_style::style_core::option::ParseOption;
+use rspack_style::util::file::path_resolve;
 
 fn criterion_benchmark(c: &mut Criterion) {
   c.bench_function("parse_var_bench", |bench| {

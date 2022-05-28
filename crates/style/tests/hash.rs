@@ -1,5 +1,5 @@
-use rspack_style::new_less::file::{path_resolve, readfile};
-use rspack_style::new_less::hash::StyleHash;
+use rspack_style::util::file::{path_resolve, readfile};
+use rspack_style::util::hash::StyleHash;
 
 #[test]
 fn test_content_hash() {

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Copy, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Copy, Eq, PartialEq)]
 pub struct Loc {
   pub line: usize,
   pub col: usize,

@@ -1,6 +1,6 @@
 use crate::extend::enum_extend::EnumExtend;
 
-#[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
+#[derive(EnumString, Display, Debug, EnumIter, Eq, PartialEq)]
 pub enum TokenStyleRuleKeyAllow {
   #[strum(serialize = ":")]
   Colon,

@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::path::Path;
 use std::slice::Iter;
 
-#[derive(Debug, Serialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Eq, PartialEq, Clone)]
 #[serde(tag = "type", content = "value")]
 pub enum StyleExtension {
   Css,

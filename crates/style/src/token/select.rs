@@ -2,7 +2,7 @@ use crate::util::str_enum::EnumToChar;
 use serde::{Deserialize, Serialize};
 use std::slice::Iter;
 
-#[derive(Debug, Serialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Eq, PartialEq, Clone)]
 pub enum TokenSelectChar {
   ClassToken,
   IdToken,
@@ -64,7 +64,7 @@ impl EnumToChar for TokenSelectChar {
 ///
 /// Select 允许的连接符
 ///
-#[derive(Debug, Serialize, PartialEq, Clone, Deserialize)]
+#[derive(Debug, Serialize, Eq, PartialEq, Clone, Deserialize)]
 #[serde(tag = "type", content = "value")]
 pub enum TokenCombinaChar {
   Comma,
@@ -124,7 +124,7 @@ impl EnumToChar for TokenCombinaChar {
   }
 }
 
-#[derive(Debug, Serialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Eq, PartialEq, Clone)]
 pub enum TokenAllowChar {
   LeftSlant,
   Underscore,
@@ -171,7 +171,7 @@ impl EnumToChar for TokenAllowChar {
   }
 }
 
-#[derive(Debug, Serialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Eq, PartialEq, Clone)]
 pub enum TokenKeyWordChar {
   PranedRefer,
   VarRefer,

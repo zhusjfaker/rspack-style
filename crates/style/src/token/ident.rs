@@ -3,7 +3,7 @@ use serde::Serialize;
 use serde_json::Value;
 use smol_str::SmolStr;
 
-#[derive(Clone, Serialize, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Serialize, Debug, Eq, PartialEq, Deserialize)]
 #[serde(tag = "type", content = "value")]
 pub enum IdentType {
   // 10px 100% 100vh

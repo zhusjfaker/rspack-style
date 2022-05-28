@@ -3,7 +3,7 @@ use crate::extend::enum_extend::EnumExtend;
 ///
 /// Meida 允许 词根
 ///
-#[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
+#[derive(EnumString, Display, Debug, EnumIter, Eq, PartialEq)]
 pub enum TokenMeidaAllow {
   #[strum(serialize = "(")]
   LeftBrackets,
@@ -27,7 +27,7 @@ impl Into<String> for TokenMeidaAllow {
 ///
 /// 媒体类型
 ///
-#[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
+#[derive(EnumString, Display, Debug, EnumIter, Eq, PartialEq)]
 pub enum TokenMediaType {
   #[strum(serialize = "all")]
   All,
@@ -51,7 +51,7 @@ impl Into<String> for TokenMediaType {
 ///
 /// 逻辑操作符
 ///
-#[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
+#[derive(EnumString, Display, Debug, EnumIter, Eq, PartialEq)]
 pub enum TokenMediaLogic {
   #[strum(serialize = "and")]
   And,
@@ -76,7 +76,7 @@ impl Into<String> for TokenMediaLogic {
 /// 媒体功能条件
 /// 即 括号里的值
 ///
-#[derive(EnumString, Display, Debug, EnumIter, PartialEq)]
+#[derive(EnumString, Display, Debug, EnumIter, Eq, PartialEq)]
 pub enum TokenMediaFeature {
   #[strum(serialize = "aspect-ratio")]
   AspectRatio,

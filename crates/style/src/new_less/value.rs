@@ -137,7 +137,7 @@ impl ValueNode {
   ///
   pub fn is_number(char: Option<&char>) -> bool {
     if let Some(cc) = char {
-      vec!['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].contains(cc)
+      cc.is_ascii_digit()
     } else {
       false
     }
@@ -148,7 +148,10 @@ impl ValueNode {
   ///
   pub fn is_brackets(char: Option<&char>) -> bool {
     if let Some(cc) = char {
-      vec!['(', ')', '[', ']', '{', '}'].contains(cc)
+      match *cc {
+        '(' | ')' | '[' | ']' | '{' | '}' => true,
+        _ => false,
+      }
     } else {
       false
     }
@@ -156,13 +159,13 @@ impl ValueNode {
 
   pub fn is_end(char: Option<&char>, extend_char: Option<Vec<char>>) -> bool {
     if let Some(cc) = char {
-      let mut char_list = vec![
-        ';', '@', '~', '#', '$', '(', ')', '[', ']', '+', '*', '/', ',',
-      ];
-      if let Some(mut extend_list) = extend_char {
-        char_list.append(&mut extend_list);
-      }
-      Token::is_space_token(Some(cc)) || char_list.contains(cc)
+      let is_static_end = match *cc {
+        ';' | '@' | '~' | '#' | '$' | '(' | ')' | '[' | ']' | '+' | '*' | '/' | ',' => true,
+        _ => false,
+      };
+      is_static_end
+        || Token::is_space_token(Some(cc))
+        || extend_char.map(|lst| lst.contains(cc)).unwrap_or(false)
     } else {
       false
     }
@@ -177,14 +180,14 @@ impl ValueNode {
       Some(*start),
       charlist,
       &mut (|arg, charword| {
-        let (index, temp, hasend) = arg;
-        let (_, char, nextchar) = charword;
+        let (index, temp, has_end) = arg;
+        let (_, char, next_char) = charword;
         temp.push(*char);
         if *char == ':' {
           return Err(self.error_msg(index));
         }
-        if Self::is_end(nextchar, None) {
-          *hasend = true;
+        if Self::is_end(next_char, None) {
+          *has_end = true;
         }
         Ok(())
       }),
@@ -341,10 +344,10 @@ impl ValueNode {
       charlist,
       &mut (|arg, charword| {
         let (index, _, hasend) = arg;
-        let (prevchar, char, nextchar) = charword;
+        let (prev_char, char, nextchar) = charword;
         if Token::is_token(Some(char)) {
           // 判断小数点的 情况
-          if *char == '.' && !has_single && Self::is_number(prevchar) && Self::is_number(nextchar) {
+          if *char == '.' && !has_single && Self::is_number(prev_char) && Self::is_number(nextchar) {
             value.push(*char);
             has_single = true;
           } else if *char == '%' {

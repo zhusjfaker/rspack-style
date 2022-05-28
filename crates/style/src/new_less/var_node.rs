@@ -185,36 +185,35 @@ impl VarNode {
   ///
   pub fn parse_var_ident(&self, start: &usize) -> Result<(String, usize), String> {
     let charlist = &self.charlist;
-    let mut hasspace = false;
+    let mut has_space = false;
     let res = traversal(
       Some(*start),
       charlist,
       &mut (|arg, charword| {
-        let (index, temp, hasend) = arg;
+        let (index, temp, has_end) = arg;
         let (_, char, next) = charword;
         // 变量声明 只允许 冒号前后有空格
-        if hasspace && Token::is_space_token(next) {
+        let is_current_char_space_token = Token::is_space_token(Some(char));
+        if has_space && Token::is_space_token(next) {
           return Ok(());
-        } else if hasspace && !Token::is_space_token(Some(char)) {
+        } else if has_space && !is_current_char_space_token {
           if *char == ':' {
             temp.push(*char);
           } else {
             return Err(self.error_msg(&(*index - 1)));
           }
-        } else if Token::is_token(Some(char)) && !hasspace {
-          if vec![':', '-'].contains(char) {
-            if *char == ':' {
-              *hasend = true;
-            } else {
-              temp.push(*char);
-            }
-          } else if Token::is_space_token(Some(char)) {
-            hasspace = true;
+        } else if !has_space && Token::is_token(Some(char)) {
+          if *char == ':' {
+            *has_end = true;
+          } else if *char == '-' {
+            temp.push(*char);
+          } else if is_current_char_space_token{
+            has_space = true;
             temp.push(*char);
           } else {
             return Err(self.error_msg(index));
           }
-        } else if !Token::is_token(Some(char)) && !hasspace {
+        } else if !has_space && !Token::is_token(Some(char)) {
           temp.push(*char);
         }
         Ok(())

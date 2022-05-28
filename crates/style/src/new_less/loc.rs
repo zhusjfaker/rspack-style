@@ -31,22 +31,15 @@ impl LocMap {
     let mut col = 1;
     let mut obj = Self { data: map };
     for (index, cc) in chars.iter().enumerate() {
-      let loc: Loc;
+      let loc: Loc = Loc {
+        col,
+        line,
+        char: *cc,
+        index,
+      };
       if *cc != '\r' && *cc != '\n' {
-        loc = Loc {
-          col,
-          line,
-          char: *cc,
-          index,
-        };
         col += 1;
       } else {
-        loc = Loc {
-          col,
-          line,
-          char: *cc,
-          index,
-        };
         col = 1;
         line += 1;
       }

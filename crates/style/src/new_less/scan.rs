@@ -13,7 +13,7 @@ pub fn traversal(
   exec: &mut dyn for<'a> FnMut(ScanArg<'a>, CharWord) -> Result<(), String>,
 ) -> Result<(String, usize), String> {
   let mut index = arg_start.unwrap_or(0);
-  let mut temp: Vec<char> = vec![];
+  let mut temp: Vec<char> = Vec::with_capacity(charlist.len());
   let mut hasend = false;
 
   while index < charlist.len() {

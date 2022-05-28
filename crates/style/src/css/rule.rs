@@ -14,6 +14,7 @@ use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
 use std::cell::RefCell;
 use std::collections::HashSet;
+use std::fmt::Write;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
@@ -265,9 +266,10 @@ impl RuleNode {
         let mut res: String = "".to_string();
         for (index, rule_res) in rules.iter().enumerate() {
           if index != rules.len() - 1 {
-            res += &format!("{}{}{}", tab.clone(), rule_res.code_gen()?, "\n");
+            writeln!(res, "{}{}", tab.clone(), rule_res.code_gen()?)
+              .expect("write stream has error");
           } else {
-            res += &format!("{}{}", tab.clone(), rule_res.code_gen()?);
+            write!(res, "{}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
           }
         }
         Ok(res)

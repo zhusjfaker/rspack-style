@@ -1,7 +1,7 @@
 use rspack_style::extend::string::StringExtend;
-use rspack_style::new_less::applicationn::Application;
-use rspack_style::new_less::file::{path_resolve, readfile};
-use rspack_style::new_less::loc::{Loc, LocMap};
+use rspack_style::sourcemap::loc::{Loc, LocMap};
+use rspack_style::style_core::applicationn::Application;
+use rspack_style::util::file::{path_resolve, readfile};
 
 ///
 /// 测试字典方法
@@ -20,7 +20,7 @@ fn test_loc() {
 fn test_loc_rule() {
   let filepath = path_resolve("assets/loc_rule.less");
   let app = Application::default();
-  let file = app.parse(filepath.as_str()).unwrap();
+  let file = app.parse(filepath.as_str()).unwrap().to_less().unwrap();
   let json = serde_json::to_string_pretty(&file).unwrap();
   println!("json->{}", json);
   let list = file.collect_loc_list();

@@ -1,7 +1,8 @@
-use rspack_style::new_less::file::path_resolve;
-use rspack_style::new_less::{applicationn::Application, option::ParseOption};
+use rspack_style::style_core::applicationn::Application;
+use rspack_style::util::file::path_resolve;
 
 use criterion::{criterion_group, criterion_main, Criterion};
+use rspack_style::style_core::option::ParseOption;
 
 macro_rules! less_bench {
   ($name:expr, $criterion:ident) => {

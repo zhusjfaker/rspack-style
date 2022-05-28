@@ -1,7 +1,7 @@
 use rspack_style::extend::string::StringExtend;
-use rspack_style::new_less::ident::IdentType;
-use rspack_style::new_less::rgb::rgb_calc;
-use rspack_style::new_less::value::ValueNode;
+use rspack_style::less::value::ValueNode;
+use rspack_style::token::ident::IdentType;
+use rspack_style::util::rgb::rgb_calc;
 
 #[test]
 fn test_color_calc() {

@@ -1,0 +1,6 @@
+@import "./b.css";
+
+.bxd {
+    flow-into: none;
+    white-space: break-spaces;
+}

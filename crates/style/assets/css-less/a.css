@@ -1,0 +1,6 @@
+@import "./b.css";
+
+h2 {
+    border-bottom: 1px solid #00b42a;
+    color: #3E138F;
+}

@@ -353,3 +353,15 @@ fn test_select_mixin_render() {
   //     target_code.to_string().simple_compare()
   //   );
 }
+
+#[test]
+fn test_less_mix_css_render(){
+  let less_filepath = path_resolve("assets/css-less/index.less");
+  let css_filepath = path_resolve("assets/css-less/main.css");
+  let app = Application::default();
+  let less_output = app.render(less_filepath.as_str()).unwrap();
+  let css_output = app.render(css_filepath.as_str()).unwrap();
+  println!("css -> \n {}",css_output);
+  println!("less -> \n {}",less_output);
+  assert_eq!(1,1)
+}

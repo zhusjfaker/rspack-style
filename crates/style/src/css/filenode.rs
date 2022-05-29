@@ -164,7 +164,7 @@ impl FileNode {
       if let StyleNode::Rule(heapnode) = node {
         let mut mut_node = heapnode.borrow_mut();
         if let Some(SelectorNode::Select(s_node)) = mut_node.selector.as_mut() {
-          s_node.parse(None)?;
+          s_node.parse()?;
         }
         drop(mut_node);
         heapnode.borrow().parse_select_all_node()?;
@@ -440,8 +440,6 @@ impl FileNode {
       }
     } else if let StyleNode::Var(VarRuleNode::StyleRule(style)) = node {
       list.push(style.loc.as_ref().cloned());
-    } else if let StyleNode::Var(VarRuleNode::Var(var)) = node {
-      list.push(var.loc.as_ref().cloned());
     } else if let StyleNode::Comment(cc) = node {
       list.push(cc.loc.as_ref().cloned());
     }

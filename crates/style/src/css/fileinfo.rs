@@ -1,7 +1,5 @@
 use crate::css::filenode::FileNode;
 use crate::css::node::StyleNode;
-use crate::css::var::VarRuleNode;
-use crate::css::var_node::VarNode;
 use crate::sourcemap::loc::LocMap;
 use crate::style_core::context::ParseContext;
 use crate::style_core::extension::StyleExtension;
@@ -78,25 +76,6 @@ impl FileInfo {
     let heapobj = Rc::new(RefCell::new(self));
     heapobj.borrow_mut().self_weak = Some(Rc::downgrade(&heapobj));
     heapobj
-  }
-
-  ///
-  /// 获取 某文件下 所有的 变量节点
-  /// 递归 获取所有 fileinfo 上 block_node -> var 节点
-  ///
-  pub fn collect_vars(&self) -> Vec<VarNode> {
-    let mut varlist = vec![];
-    for filenode in &self.import_files {
-      for item in &filenode.info.borrow().block_node {
-        if let StyleNode::Var(VarRuleNode::Var(var)) = &item {
-          varlist.push(var.clone());
-        }
-      }
-      // 递归收集
-      let mut child_var_list = filenode.info.borrow().collect_vars();
-      varlist.append(&mut child_var_list)
-    }
-    varlist
   }
 
   ///

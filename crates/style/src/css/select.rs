@@ -1,8 +1,6 @@
 use crate::css::fileinfo::FileWeakRef;
 use crate::css::node::{NodeWeakRef, StyleNode};
 use crate::css::select_node::SelectorNode;
-use crate::css::value::ValueNode;
-use crate::css::var::VarRuleNode;
 use crate::extend::string::StringExtend;
 use crate::extend::vec_str::VecCharExtend;
 use crate::sourcemap::loc::{Loc, LocMap};
@@ -537,11 +535,11 @@ impl NewSelector {
   /// parse select txt
   /// https://www.w3schools.com/cssref/css_selectors.asp
   ///
-  pub fn parse(&mut self, parent_node: NodeWeakRef) -> Result<(), String> {
+  pub fn parse(&mut self) -> Result<(), String> {
     let index: usize = 0;
     // 先判断 可以减少工作量调用
     if self.charlist.contains(&'@') {
-      self.pure_select_txt(parent_node)?;
+      self.pure_select_txt()?;
     }
     let charlist = &self.charlist.clone();
 
@@ -954,7 +952,7 @@ impl NewSelector {
   /// support var in select_txt
   /// like @{abc} .a{  .... }
   ///
-  fn pure_select_txt(&mut self, parent_node: NodeWeakRef) -> Result<(), String> {
+  fn pure_select_txt(&mut self) -> Result<(), String> {
     let mut record = false;
     let mut list: Vec<SelectVarText> = vec![];
     traversal(
@@ -997,73 +995,11 @@ impl NewSelector {
       for tt in list {
         if let SelectVarText::Txt(t) = tt {
           new_content += &t;
-        } else if let SelectVarText::Var(v) = tt {
-          let val = v.to_char_vec()[2..v.len() - 1].to_vec().poly();
-          let var_ident = format!("@{}", val);
-          let var_node_value = self.get_var_by_key(
-            var_ident.as_str(),
-            parent_node.clone(),
-            self.fileinfo.clone(),
-          )?;
-
-          new_content += &var_node_value.code_gen()?;
         }
       }
       self.charlist = new_content.to_char_vec();
     }
 
     Ok(())
-  }
-
-  ///
-  /// 查找变量
-  /// 用于 (变量计算)
-  ///
-  pub fn get_var_by_key(
-    &self,
-    key: &str,
-    rule_info: NodeWeakRef,
-    file_info: FileWeakRef,
-  ) -> Result<ValueNode, String> {
-    if let Some(rule_ref) = rule_info {
-      let rule = rule_ref.upgrade().unwrap();
-      let nodelist = &rule.deref().borrow().block_node;
-      for item in nodelist {
-        if let StyleNode::Var(VarRuleNode::Var(var)) = item.deref() {
-          if var.key.as_ref().unwrap() == key {
-            return Ok(var.value.as_ref().unwrap().clone());
-          }
-        }
-      }
-      return if rule.deref().borrow().parent.is_some() {
-        // 非顶层 向上递归
-        self.get_var_by_key(key, rule.deref().borrow().parent.clone(), None)
-      } else {
-        // 顶层 同层 引用递归 查看下半段代码
-        self.get_var_by_key(key, None, self.fileinfo.clone())
-      };
-    }
-    // 到达顶层后 取当前文件 的 顶层变量 或者 其他引用 文件的 顶层变量
-    else if let Some(file_ref) = file_info {
-      // 若没有则已经到达 顶层 则按照 顶层处理
-      let fileinfo_ref = file_ref.upgrade().unwrap();
-      let nodelist = &fileinfo_ref.deref().borrow().block_node;
-      for item in nodelist {
-        if let StyleNode::Var(VarRuleNode::Var(var)) = item.deref() {
-          if var.key.as_ref().unwrap() == key {
-            return Ok(var.value.as_ref().unwrap().clone());
-          }
-        }
-      }
-      // 获取 其他 引用文件 顶层变量
-      let top_level_other_vars = fileinfo_ref.deref().borrow().collect_vars();
-      for var in top_level_other_vars {
-        if var.key.as_ref().unwrap() == key {
-          return Ok(var.value.as_ref().unwrap().clone());
-        }
-      }
-    };
-
-    Err(format!("no var key {} has found", key))
   }
 }

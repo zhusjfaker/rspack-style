@@ -90,8 +90,8 @@ pub struct NewSelector {
 
 impl Serialize for NewSelector {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-      S: Serializer,
+  where
+    S: Serializer,
   {
     let mut state = serializer.serialize_struct("FileInfo", 3)?;
     state.serialize_field("loc", &self.loc)?;
@@ -287,7 +287,7 @@ impl NewSelector {
         let clousure_warp_index = handle_index - index;
         let global_warp_index = handle_index - index - 1;
         if let SelectParadigm::SelectWrap(clousure_warp) =
-        new_list.get_mut(clousure_warp_index).unwrap()
+          new_list.get_mut(clousure_warp_index).unwrap()
         {
           let list = clousure_warp.to_string().to_char_vec();
           *clousure_warp = list[1..list.len() - 1].to_vec().poly();
@@ -313,7 +313,7 @@ impl NewSelector {
       if let Some(any_parent_rule) = select_rule_node {
         let heap_any_parent_rule = any_parent_rule.upgrade().unwrap();
         if let Some(SelectorNode::Select(ps)) =
-        heap_any_parent_rule.deref().borrow().selector.as_ref()
+          heap_any_parent_rule.deref().borrow().selector.as_ref()
         {
           parent_select_txt = ps.code_gen()?;
         };

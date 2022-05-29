@@ -2,11 +2,11 @@ use crate::css::fileinfo::{FileRef, FileWeakRef};
 use crate::css::import::ImportNode;
 use crate::css::node::NodeWeakRef;
 use crate::css::style_rule::StyleRuleNode;
+use crate::extend::vec_str::VecCharExtend;
 use crate::sourcemap::loc::Loc;
 use crate::style_core::context::ParseContext;
 use serde::Serialize;
 use serde_json::{Map, Value};
-use crate::extend::vec_str::VecCharExtend;
 
 ///
 /// 处理类型
@@ -62,13 +62,11 @@ impl VarRuleNode {
       };
     } else if charlist.len() > "@".len() && *charlist.get(0).unwrap() == '@' {
       // 处理 变量声明
-      return Err(
-        format!(
-          "cssfile {} has not allow include vars in content -> {} !",
-          fileinfo.unwrap().upgrade().unwrap().borrow().disk_location,
-          charlist.poly()
-        )
-      );
+      return Err(format!(
+        "cssfile {} has not allow include vars in content -> {} !",
+        fileinfo.unwrap().upgrade().unwrap().borrow().disk_location,
+        charlist.poly()
+      ));
     } else {
       // 处理 规则
       match StyleRuleNode::new(charlist, loc, parent, fileinfo, context) {

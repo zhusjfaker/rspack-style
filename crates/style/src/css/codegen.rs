@@ -4,7 +4,6 @@ use crate::token::ident::IdentType;
 use std::cmp::Ordering;
 
 impl ValueNode {
-
   ///
   /// 代码转化 都 转化成 无变量 实参
   /// 用于 (变量计算)

@@ -163,6 +163,7 @@ fn test_keyframe_at_select_minify_render() {
   app.set_minify(true);
   let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
+  assert_eq!(false, res.contains("\n"));
 }
 
 #[test]
@@ -220,7 +221,7 @@ fn test_keyframe_at_select_render() {
 }
 
 #[test]
-fn test_demo_minify_render(){
+fn test_demo_minify_render() {
   let filepath = path_resolve("assets/demo.less");
   let app = Application::default();
   app.set_minify(true);

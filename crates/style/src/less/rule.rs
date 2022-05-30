@@ -18,6 +18,7 @@ use std::fmt::Write;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use crate::util::str_handle::{merge_spaces, merge_wrap};
 
 #[derive(Clone)]
 pub struct RuleNode {
@@ -241,8 +242,20 @@ impl RuleNode {
       }
     }
 
+    let handle_str = |content: &str| {
+      merge_spaces(merge_wrap(content).as_str())
+    };
+
     // example -> @keyframes, @font-family
     if select_txt.find('@') == Some(0) {
+      let single_key_rule_content = {
+        if option.minify {
+          handle_str(self.origin_charlist.poly().as_str())
+        } else {
+          self.origin_charlist.poly()
+        }
+      };
+
       if media_txt.is_empty() {
         *content += format!(
           "{}{}{}{}{}{}{}",
@@ -250,7 +263,7 @@ impl RuleNode {
           select_txt,
           "{",
           br_char,
-          tab.clone() + &tab.clone() + self.origin_charlist.poly().as_str(),
+          tab.clone() + &tab.clone() + single_key_rule_content.as_str(),
           br_char,
           "}"
         )
@@ -265,7 +278,7 @@ impl RuleNode {
           tab.clone() + &select_txt,
           br_char,
           "{",
-          tab.clone() + &tab.clone() + &tab.clone() + self.origin_charlist.poly().as_str(),
+          tab.clone() + &tab.clone() + &tab.clone() + single_key_rule_content.as_str(),
           br_char,
           tab.clone() + "}",
           br_char,
@@ -283,7 +296,7 @@ impl RuleNode {
           if index != rules.len() - 1 {
             if !option.minify {
               writeln!(res, "{}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
-            }else{
+            } else {
               write!(res, " {}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
             }
           } else {
@@ -327,6 +340,7 @@ impl RuleNode {
     }
 
     for node_ref in self.getrules() {
+      *content = merge_spaces(content);
       node_ref.deref().borrow().code_gen(content, map)?;
     }
 

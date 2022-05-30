@@ -6,6 +6,7 @@ use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::rc::{Rc, Weak};
 use std::time::Duration;
+use regex::Regex;
 use tokio::sync::Mutex;
 use tokio::time::sleep;
 use uuid::Uuid;
@@ -308,4 +309,16 @@ fn test_splic_vec() {
     list.insert(2, item.clone());
   }
   println!("{:#?}", list);
+}
+
+#[test]
+fn test_space_join() {
+  let mut txt = r#"
+    abc
+        cde
+    "#.to_string();
+  txt = txt.replace("\n", " ").to_string();
+  let re = Regex::new("\\s+").unwrap();
+  txt = re.replace_all(txt.as_str(), " ").to_string();
+  println!("{}", txt);
 }

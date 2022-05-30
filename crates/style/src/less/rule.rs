@@ -43,8 +43,8 @@ pub struct RuleNode {
 
 impl Serialize for RuleNode {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
+    where
+      S: Serializer,
   {
     let mut state = serializer.serialize_struct("RuleNode", 4)?;
     state.serialize_field("content", &self.origin_charlist.poly())?;
@@ -229,34 +229,49 @@ impl RuleNode {
     let (select_txt, media_txt) = self.selector.as_ref().unwrap().code_gen(map).unwrap();
     let mut tab: String = "".to_string();
     let mut index = 0;
-    while index < self.get_options().tabspaces {
-      tab += " ";
-      index += 1;
+    let option = self.get_options();
+
+    let mut br_char = "\n";
+    if option.minify {
+      br_char = " ";
+    } else {
+      while index < option.tabspaces {
+        tab += " ";
+        index += 1;
+      }
     }
 
     // example -> @keyframes, @font-family
     if select_txt.find('@') == Some(0) {
       if media_txt.is_empty() {
         *content += format!(
-          "\n{}{}\n{}\n{}",
+          "{}{}{}{}{}{}{}",
+          br_char,
           select_txt,
           "{",
+          br_char,
           tab.clone() + &tab.clone() + self.origin_charlist.poly().as_str(),
+          br_char,
           "}"
         )
-        .as_str();
+          .as_str();
       } else {
         *content += format!(
-          "\n{}{}\n{}{}\n{}\n{}\n{}",
+          "{}{}{}{}{}{}{}{}{}{}{}{}",
+          br_char,
           media_txt,
+          br_char,
           "{",
           tab.clone() + &select_txt,
+          br_char,
           "{",
           tab.clone() + &tab.clone() + &tab.clone() + self.origin_charlist.poly().as_str(),
+          br_char,
           tab.clone() + "}",
+          br_char,
           "}"
         )
-        .as_str();
+          .as_str();
       }
 
       // 后续不递归了
@@ -266,8 +281,11 @@ impl RuleNode {
         let mut res: String = "".to_string();
         for (index, rule_res) in rules.iter().enumerate() {
           if index != rules.len() - 1 {
-            writeln!(res, "{}{}", tab.clone(), rule_res.code_gen()?)
-              .expect("write stream has error");
+            if !option.minify {
+              writeln!(res, "{}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
+            }else{
+              write!(res, " {}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
+            }
           } else {
             write!(res, "{}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
           }
@@ -277,25 +295,34 @@ impl RuleNode {
 
       if media_txt.is_empty() {
         *content += format!(
-          "\n{}{}\n{}\n{}\n",
+          "{}{}{}{}{}{}{}{}",
+          br_char,
           select_txt,
           " {",
+          br_char,
           create_rules(tab)?,
-          "}"
+          br_char,
+          "}",
+          br_char,
         )
-        .as_ref();
+          .as_ref();
       } else {
         *content += format!(
-          "\n{}{}\n{}{}\n{}\n{}\n{}",
+          "{}{}{}{}{}{}{}{}{}{}{}{}",
+          br_char,
           media_txt,
           " {",
+          br_char,
           tab.clone() + &select_txt,
           " {",
+          br_char,
           create_rules(tab.clone() + &tab.clone())?,
+          br_char,
           "  }",
+          br_char,
           "}"
         )
-        .as_ref();
+          .as_ref();
       }
     }
 

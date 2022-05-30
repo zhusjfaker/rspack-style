@@ -12,9 +12,21 @@ pub struct Application {
 }
 
 impl Application {
+  ///
+  /// 初始化函数
+  ///
   pub fn new(option: ParseOption, application_fold: Option<String>) -> Result<Self, String> {
     let context = Context::new(option, application_fold)?;
     Ok(Application { context })
+  }
+
+  ///
+  /// 修复输出 是否需要压缩
+  ///
+  pub fn set_minify(&self, minify: bool) {
+    let mut context = self.context.lock().unwrap();
+    context.clear_render_cache();
+    context.option.minify = minify;
   }
 
   ///

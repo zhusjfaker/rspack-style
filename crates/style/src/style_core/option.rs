@@ -9,6 +9,7 @@ pub struct ParseOption {
   pub tabspaces: usize,
   pub modules: Option<bool>,
   pub hooks: ParseHooks,
+  pub minify: bool,
 }
 
 impl Debug for ParseOption {
@@ -37,6 +38,7 @@ impl Default for ParseOption {
       tabspaces: 2,
       modules: None,
       hooks: Default::default(),
+      minify: false
     }
   }
 }

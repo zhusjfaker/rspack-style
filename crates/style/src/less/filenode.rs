@@ -13,6 +13,7 @@ use crate::util::str_enum::StringToEnum;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
+use crate::style_core::option::OptionExtend;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct FileNode {
@@ -40,6 +41,7 @@ impl FileNode {
     let mut res = "".to_string();
     let mut set = HashSet::new();
     let info = self.info.borrow();
+    let option = info.get_options();
     let mut need_add_cache = false;
     if !info.import_files.is_empty() {
       for item in info.import_files.iter() {
@@ -52,7 +54,11 @@ impl FileNode {
             if !has_codegen_record {
               let import_res = less_node.code_gen()?;
               res += &import_res;
-              res += "\n";
+              if !option.minify {
+                res += "\n";
+              }else{
+                res += " ";
+              }
             }
           }
           StyleFileNode::Css(css_node) => {
@@ -63,7 +69,11 @@ impl FileNode {
             if !has_codegen_record {
               let import_res = css_node.code_gen()?;
               res += &import_res;
-              res += "\n";
+              if !option.minify {
+                res += "\n";
+              }else{
+                res += " ";
+              }
             }
           }
         }

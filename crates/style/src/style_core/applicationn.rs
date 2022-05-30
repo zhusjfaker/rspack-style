@@ -54,6 +54,18 @@ impl Application {
 
   ///
   /// 产生代码
+  /// 根据 硬盘上 文件
+  /// 降级为 css 处理
+  ///
+  pub fn render_with_css(&self, filepath: &str) -> Result<String, String> {
+    crate::css::filenode::FileNode::create_disklocation(
+      filepath.to_string(),
+      self.context.clone(),
+    )
+  }
+
+  ///
+  /// 产生代码
   /// 根据 内存上 内容
   ///
   pub fn render_content(&self, content: &str, filepath: &str) -> Result<String, String> {
@@ -76,6 +88,20 @@ impl Application {
     }
     Err("render_content -> filepath is not file!".to_string())
   }
+
+  ///
+  /// 产生代码
+  /// 根据 内存上 内容
+  /// 降级为 css 处理
+  ///
+  pub fn render_content_with_css(&self, content: &str, filepath: &str) -> Result<String, String> {
+    crate::css::filenode::FileNode::create_txt_content(
+      content.to_string(),
+      filepath.to_string(),
+      self.context.clone(),
+    )
+  }
+
 
   ///
   /// 产生代码
@@ -102,6 +128,22 @@ impl Application {
       };
     }
     Err("render_into_hashmap -> filepath is not file!".to_string())
+  }
+
+  ///
+  /// 产生代码
+  /// 并且分层 进入 hashmap
+  /// 根据 硬盘上 文件
+  /// 降级为 css 处理
+  ///
+  pub fn render_into_hashmap_with_css(
+    &self,
+    filepath: &str,
+  ) -> Result<(HashMap<String, String>, String), String> {
+    crate::css::filenode::FileNode::create_disklocation_into_hashmap(
+      filepath.to_string(),
+      self.context.clone(),
+    )
   }
 
   ///
@@ -136,6 +178,24 @@ impl Application {
       };
     }
     Err("render_content_into_hashmap -> filepath is not file!".to_string())
+  }
+
+  ///
+  /// 产生代码
+  /// 并且分层 进入 hashmap
+  /// 根据 内存上 内容
+  /// 降级为 css 处理
+  ///
+  pub fn render_content_into_hashmap_with_css(
+    &self,
+    content: &str,
+    filepath: &str,
+  ) -> Result<(HashMap<String, String>, String), String> {
+    crate::css::filenode::FileNode::create_content_into_hashmap(
+      content.to_string(),
+      filepath.to_string(),
+      self.context.clone(),
+    )
   }
 
   ///

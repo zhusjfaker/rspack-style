@@ -1,6 +1,6 @@
 [package]
 name = "rspack_style"
-version = "0.1.14"
+version = "0.1.15"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/zhusjfaker/rust-less.git"
@@ -16,7 +16,7 @@ include = [
 ]
 
 [dependencies]
-regex = "1.5.4"
+regex = "=1.5.4"
 serde = { version = "1.0.133", features = ["derive", "rc"] }
 serde_json = "1.0.74"
 fasteval = "0.2.4"

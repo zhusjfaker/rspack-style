@@ -8,7 +8,9 @@ fn test_content_hash() {
   println!("{}", hash_value);
   let hash_value2 = StyleHash::generate_hash_by_content(content);
   println!("{}", hash_value2);
+  let target_code = "8170069951894177743".to_string();
   assert_eq!(hash_value, hash_value2);
+  assert_eq!(target_code, hash_value);
 }
 
 #[test]

@@ -1,0 +1,7 @@
+.symbol {
+  font-size: 10px;
+  margin-left: 4px;
+}
+.symbol > svg {
+  vertical-align: 0;
+}

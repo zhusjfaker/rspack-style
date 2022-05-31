@@ -1,0 +1,7 @@
+.a {
+    width: 30px;
+}
+
+:global(.xyz) .b :global .c .d {
+    height: 30px;
+}

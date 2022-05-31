@@ -53,9 +53,12 @@ impl Serialize for FileInfo {
   {
     let mut state = serializer.serialize_struct("FileInfo", 3)?;
     state.serialize_field("disk_location", &self.disk_location)?;
-    state.serialize_field("origin_txt_content", &self.disk_location)?;
+    state.serialize_field("origin_txt_content", &self.origin_txt_content)?;
     state.serialize_field("block_node", &self.block_node)?;
     state.serialize_field("import_file", &self.import_files)?;
+    state.serialize_field("class_selector_collect", &self.class_selector_collect)?;
+    state.serialize_field("hash_perfix", &self.hash_perfix)?;
+    state.serialize_field("resolve_extension", &self.resolve_extension)?;
     state.end()
   }
 }
@@ -66,6 +69,9 @@ impl Debug for FileInfo {
       .field("disk_location", &self.disk_location)
       .field("block_node", &self.block_node)
       .field("import_file", &self.import_files)
+      .field("class_selector_collect", &self.class_selector_collect)
+      .field("hash_perfix", &self.hash_perfix)
+      .field("resolve_extension", &self.resolve_extension)
       .finish()
   }
 }

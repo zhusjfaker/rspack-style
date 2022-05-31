@@ -1,12 +1,13 @@
+use regex::Regex;
 use rspack_style::extend::rs_hooks::{create_hooks_str, HookData};
 use rspack_style::extend::string::StringExtend;
 use rspack_style::extend::vec_str::VecCharExtend;
 use rspack_style::extend::vec_str::VecCharOptionalExtend;
+use rspack_style::util::file::path_resolve;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::rc::{Rc, Weak};
 use std::time::Duration;
-use regex::Regex;
 use tokio::sync::Mutex;
 use tokio::time::sleep;
 use uuid::Uuid;
@@ -316,9 +317,22 @@ fn test_space_join() {
   let mut txt = r#"
     abc
         cde
-    "#.to_string();
+    "#
+  .to_string();
   txt = txt.replace("\n", " ").to_string();
   let re = Regex::new("\\s+").unwrap();
   txt = re.replace_all(txt.as_str(), " ").to_string();
   println!("{}", txt);
+}
+
+#[test]
+fn file_read_dir() {
+  let dir = path_resolve("assets/arco-pro-css");
+  for entry in std::path::Path::new(&dir).read_dir().unwrap() {
+    let file = entry.unwrap().path();
+    if file.is_file() && file.extension().unwrap().to_str().unwrap() == "css" {
+      let css_file = file.to_str().unwrap();
+      println!("{}", css_file);
+    }
+  }
 }

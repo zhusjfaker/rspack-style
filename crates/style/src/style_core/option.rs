@@ -38,7 +38,7 @@ impl Default for ParseOption {
       tabspaces: 2,
       modules: None,
       hooks: Default::default(),
-      minify: false
+      minify: false,
     }
   }
 }

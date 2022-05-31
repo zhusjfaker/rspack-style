@@ -12,7 +12,7 @@ fn test_less_import_hook() {
     println!("{},{}", filepath, importpath);
     Ok(importpath)
   }));
-  let res = app.render(filepath.as_str()).unwrap();
+  let res = app.render(filepath.as_str()).unwrap().0;
   println!("{}", res);
 }
 
@@ -20,7 +20,7 @@ fn test_less_import_hook() {
 fn test_less_content_hook() {
   let filepath = path_resolve("assets/demo.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap();
+  let res = app.render(filepath.as_str()).unwrap().0;
   println!("rust_res: -> \n {}", res);
 }
 

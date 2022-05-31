@@ -80,7 +80,17 @@ impl FileNode {
     }
     drop(context);
     drop(info);
-    self.info.borrow_mut().class_selector_collect = set;
+    if !set.is_empty() {
+      self.info.borrow_mut().class_selector_collect = set.clone();
+      let info = self.info.borrow();
+      let key = info.disk_location.clone();
+      let context = info.context.lock().unwrap();
+      let mut parse_cache_map = context.filecache.lock().unwrap();
+      parse_cache_map.remove(&key);
+      let file_info_json = serde_json::to_string_pretty(self).unwrap();
+      parse_cache_map.insert(key, file_info_json);
+    }
+
     Ok(res)
   }
 
@@ -88,11 +98,10 @@ impl FileNode {
   /// 用来执行多 css 之间的 bundle
   /// 初始化 执行 需要 放入一个 空map 的引用 后续会自动填充到 该参数 上
   ///
-  pub fn code_gen_into_map(&self, map: &mut HashMap<String, String>) -> Result<String, String> {
+  pub fn code_gen_into_map(&self, map: &mut HashMap<String, String>) -> Result<(), String> {
     let info = self.info.borrow();
     let mut set = HashSet::new();
     let mut need_add_cache = false;
-    let mut css_module_content = "".to_string();
     if !info.import_files.is_empty() {
       for item in info.import_files.iter() {
         let has_codegen_record = {
@@ -100,8 +109,7 @@ impl FileNode {
           context.has_codegen_record(&item.info.borrow().disk_location)
         };
         if !has_codegen_record {
-          let css_module_import_content = item.code_gen_into_map(map)?;
-          css_module_content += &css_module_import_content;
+          item.code_gen_into_map(map)?;
         }
       }
     }
@@ -131,23 +139,34 @@ impl FileNode {
     drop(context);
     drop(info);
     // 拼接css_module 的内容
-    self.info.borrow_mut().class_selector_collect = set;
-    css_module_content += &self.output_js_with_cssmodule();
-    Ok(css_module_content)
+    if !set.is_empty() {
+      self.info.borrow_mut().class_selector_collect = set.clone();
+      let info = self.info.borrow();
+      let key = info.disk_location.clone();
+      let context = info.context.lock().unwrap();
+      let mut parse_cache_map = context.filecache.lock().unwrap();
+      parse_cache_map.remove(&key);
+      let file_info_json = serde_json::to_string_pretty(self).unwrap();
+      parse_cache_map.insert(key, file_info_json);
+    }
+    Ok(())
   }
 
   ///
   /// 拼接css_module 的 js 导出内容
   ///
-  pub fn output_js_with_cssmodule(&self) -> String {
+  pub fn output_js_with_cssmodule(
+    class_selector_collect: &Vec<String>,
+    perfix_hash: &str,
+  ) -> String {
     let mut res = "".to_string();
-    for item in &self.info.borrow().class_selector_collect {
+    for item in class_selector_collect {
       let key = if item.contains('-') {
         format!(r#"["{}"]"#, item)
       } else {
         item.to_string()
       };
-      let value = format!("{}_{}", item, self.info.borrow().hash_perfix);
+      let value = format!("{}_{}", item, perfix_hash);
       res += format!(r#"{}: "{}","#, key, value).as_str();
       res += " \n";
     }
@@ -269,14 +288,36 @@ impl FileNode {
   ///
   /// 根据文件路径 转换 文件(分页)
   ///
-  pub fn create_disklocation(filepath: String, context: ParseContext) -> Result<String, String> {
+  pub fn create_disklocation(
+    filepath: String,
+    context: ParseContext,
+  ) -> Result<(String, String), String> {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
-    let res = obj.code_gen()?;
-
+    let mut res = obj.code_gen()?;
     let mut sync_context = context.lock().unwrap();
-    sync_context.clear_parse_cache();
     sync_context.clear_codegen_record();
-    Ok(res)
+    let mut js_content = "".to_string();
+    if obj.info.borrow().modules {
+      drop(sync_context);
+      let perfix_hash = obj.info.borrow().hash_perfix.clone();
+      res = res.replace("@@@hash_str_replace_value@@@", &perfix_hash);
+      let mut js_modules_collect = HashSet::new();
+      Self::collect_class_modules_set(&obj, &mut js_modules_collect);
+      let mut js_modules_collect = js_modules_collect.into_iter().collect::<Vec<String>>();
+      js_modules_collect.sort();
+      js_content = format!(
+        r#"
+    const style = {}
+      {}
+    {};
+    export default style;
+    "#,
+        "{",
+        Self::output_js_with_cssmodule(&js_modules_collect, &perfix_hash),
+        "}"
+      );
+    }
+    Ok((res, js_content))
   }
 
   ///
@@ -288,20 +329,35 @@ impl FileNode {
   ) -> Result<(HashMap<String, String>, String), String> {
     let obj = Self::create_disklocation_parse(filepath, context.clone())?;
     let mut map = HashMap::new();
-    let mut css_module_content = obj.code_gen_into_map(&mut map)?;
-    css_module_content = format!(
-      r#"
+    obj.code_gen_into_map(&mut map)?;
+    let mut sync_context = context.lock().unwrap();
+    sync_context.clear_codegen_record();
+    let mut js_content = "".to_string();
+    if obj.info.borrow().modules {
+      drop(sync_context);
+      let perfix_hash = obj.info.borrow().hash_perfix.clone();
+      for res in map.values_mut() {
+        *res = res
+          .replace("@@@hash_str_replace_value@@@", &perfix_hash)
+          .to_string()
+      }
+      let mut js_modules_collect = HashSet::new();
+      Self::collect_class_modules_set(&obj, &mut js_modules_collect);
+      let mut js_modules_collect = js_modules_collect.into_iter().collect::<Vec<String>>();
+      js_modules_collect.sort();
+      js_content = format!(
+        r#"
     const style = {}
       {}
     {};
     export default style;
     "#,
-      "{", css_module_content, "}"
-    );
-    let mut sync_context = context.lock().unwrap();
-    sync_context.clear_parse_cache();
-    sync_context.clear_codegen_record();
-    Ok((map, css_module_content))
+        "{",
+        Self::output_js_with_cssmodule(&js_modules_collect, &perfix_hash),
+        "}"
+      );
+    }
+    Ok((map, js_content))
   }
 
   ///
@@ -394,12 +450,33 @@ impl FileNode {
     content: String,
     filename: String,
     context: ParseContext,
-  ) -> Result<String, String> {
+  ) -> Result<(String, String), String> {
     let obj = Self::create_txt_content_parse(content, context.clone(), filename)?;
     let mut sync_context = context.lock().unwrap();
-    let res = obj.code_gen()?;
+    let mut res = obj.code_gen()?;
     sync_context.clear_codegen_record();
-    Ok(res)
+    let mut js_content = "".to_string();
+    if obj.info.borrow().modules {
+      drop(sync_context);
+      let perfix_hash = obj.info.borrow().hash_perfix.clone();
+      res = res.replace("@@@hash_str_replace_value@@@", &perfix_hash);
+      let mut js_modules_collect = HashSet::new();
+      Self::collect_class_modules_set(&obj, &mut js_modules_collect);
+      let mut js_modules_collect = js_modules_collect.into_iter().collect::<Vec<String>>();
+      js_modules_collect.sort();
+      js_content = format!(
+        r#"
+    const style = {}
+      {}
+    {};
+    export default style;
+    "#,
+        "{",
+        Self::output_js_with_cssmodule(&js_modules_collect, &perfix_hash),
+        "}"
+      );
+    }
+    Ok((res, js_content))
   }
 
   ///
@@ -413,20 +490,35 @@ impl FileNode {
   ) -> Result<(HashMap<String, String>, String), String> {
     let obj = Self::create_txt_content_parse(content, context.clone(), filepath)?;
     let mut map = HashMap::new();
-    let mut css_module_content = obj.code_gen_into_map(&mut map)?;
-    css_module_content = format!(
-      r#"
+    obj.code_gen_into_map(&mut map)?;
+    let mut sync_context = context.lock().unwrap();
+    sync_context.clear_codegen_record();
+    let mut js_content = "".to_string();
+    if obj.info.borrow().modules {
+      drop(sync_context);
+      let perfix_hash = obj.info.borrow().hash_perfix.clone();
+      for res in map.values_mut() {
+        *res = res
+          .replace("@@@hash_str_replace_value@@@", &perfix_hash)
+          .to_string()
+      }
+      let mut js_modules_collect = HashSet::new();
+      Self::collect_class_modules_set(&obj, &mut js_modules_collect);
+      let mut js_modules_collect = js_modules_collect.into_iter().collect::<Vec<String>>();
+      js_modules_collect.sort();
+      js_content = format!(
+        r#"
     const style = {}
       {}
     {};
     export default style;
     "#,
-      "{", css_module_content, "}"
-    );
-    let mut sync_context = context.lock().unwrap();
-    sync_context.clear_parse_cache();
-    sync_context.clear_codegen_record();
-    Ok((map, css_module_content))
+        "{",
+        Self::output_js_with_cssmodule(&js_modules_collect, &perfix_hash),
+        "}"
+      );
+    }
+    Ok((map, js_content))
   }
 
   ///
@@ -454,5 +546,18 @@ impl FileNode {
       Self::collect_loc(node.clone(), &mut list);
     }
     list
+  }
+
+  ///
+  /// 渲染时 获取 引用树上的 所有值
+  ///
+  pub fn collect_class_modules_set(filenode: &FileNode, set: &mut HashSet<String>) {
+    let self_set = &filenode.info.borrow().class_selector_collect;
+    for item in self_set {
+      set.insert(item.to_string());
+    }
+    for file in &filenode.info.borrow().import_files {
+      Self::collect_class_modules_set(file, set);
+    }
   }
 }

@@ -6,7 +6,7 @@ use crate::util::file::get_dir;
 use crate::util::hash::StyleHash;
 use crate::util::str_enum::StringToEnum;
 use serde_json::{Map, Value};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Formatter};
 use std::path::Path;
 use std::rc::Rc;
@@ -249,7 +249,19 @@ impl Context {
           hash_perfix: "".to_string(),
           resolve_extension,
         };
-
+        if let Some(value) = map.get("class_selector_collect") {
+          let class_selector_collect = value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|x| x.as_str().unwrap().to_string())
+            .collect::<Vec<String>>();
+          let mut set = HashSet::new();
+          for item in class_selector_collect {
+            set.insert(item);
+          }
+          obj.class_selector_collect = set;
+        }
         let need_modules = crate::css::filenode::FileNode::is_need_css_modules(
           obj.disk_location.as_str(),
           self.option.modules,
@@ -322,6 +334,19 @@ impl Context {
           resolve_extension,
         };
 
+        if let Some(value) = map.get("class_selector_collect") {
+          let class_selector_collect = value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|x| x.as_str().unwrap().to_string())
+            .collect::<Vec<String>>();
+          let mut set = HashSet::new();
+          for item in class_selector_collect {
+            set.insert(item);
+          }
+          obj.class_selector_collect = set;
+        }
         let need_modules = crate::less::filenode::FileNode::is_need_css_modules(
           obj.disk_location.as_str(),
           self.option.modules,

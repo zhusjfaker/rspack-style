@@ -4,7 +4,7 @@ use regex::Regex;
 /// 替换所有的换行 为 空格
 ///
 pub fn merge_wrap(content: &str) -> String {
-  content.replace("\n", " ").to_string()
+  content.replace('\n', " ")
 }
 
 ///

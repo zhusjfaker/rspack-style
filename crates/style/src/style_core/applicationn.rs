@@ -33,7 +33,7 @@ impl Application {
   /// 产生代码
   /// 根据 硬盘上 文件
   ///
-  pub fn render(&self, filepath: &str) -> Result<String, String> {
+  pub fn render(&self, filepath: &str) -> Result<(String, String), String> {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
@@ -57,18 +57,15 @@ impl Application {
   /// 根据 硬盘上 文件
   /// 降级为 css 处理
   ///
-  pub fn render_with_css(&self, filepath: &str) -> Result<String, String> {
-    crate::css::filenode::FileNode::create_disklocation(
-      filepath.to_string(),
-      self.context.clone(),
-    )
+  pub fn render_with_css(&self, filepath: &str) -> Result<(String, String), String> {
+    crate::css::filenode::FileNode::create_disklocation(filepath.to_string(), self.context.clone())
   }
 
   ///
   /// 产生代码
   /// 根据 内存上 内容
   ///
-  pub fn render_content(&self, content: &str, filepath: &str) -> Result<String, String> {
+  pub fn render_content(&self, content: &str, filepath: &str) -> Result<(String, String), String> {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
@@ -94,14 +91,17 @@ impl Application {
   /// 根据 内存上 内容
   /// 降级为 css 处理
   ///
-  pub fn render_content_with_css(&self, content: &str, filepath: &str) -> Result<String, String> {
+  pub fn render_content_with_css(
+    &self,
+    content: &str,
+    filepath: &str,
+  ) -> Result<(String, String), String> {
     crate::css::filenode::FileNode::create_txt_content(
       content.to_string(),
       filepath.to_string(),
       self.context.clone(),
     )
   }
-
 
   ///
   /// 产生代码

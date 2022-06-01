@@ -1,0 +1,58 @@
+.card {
+  display: flex;
+  padding: 20px;
+  padding-top: 16px;
+  border-radius: 4px;
+  min-height: 100px;
+}
+.card-line {
+  background: linear-gradient(180deg, #f2f9fe 0%, #e6f4fe 100%);
+}
+.card-interval {
+  background: linear-gradient(180deg, #f5fef2 0%, #e6feee 100%);
+}
+.card-pie {
+  background: linear-gradient(180deg, #f7f7ff 0%, #ececff 100%);
+}
+.card .statistic {
+  white-space: nowrap;
+}
+.card .chart {
+  flex: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  margin-left: 16px;
+}
+.card .title {
+  margin: 0;
+}
+.card :global(.arco-statistic-content) {
+  margin-top: 24px;
+  margin-bottom: 4px;
+}
+.card :global(.arco-statistic-content) :global(.arco-statistic-value) {
+  font-size: 24px;
+  line-height: 28px;
+}
+.card .compare-yesterday-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-2);
+}
+.card .diff {
+  margin-left: 8px;
+  line-height: 20px;
+  color: rgb(var(--red-6));
+}
+.card .diff-increment {
+  color: rgb(var(--green-6));
+}
+body[arco-theme='dark'] .card-line {
+  background: linear-gradient(180deg, #284991 0%, #122b62 100%);
+}
+body[arco-theme='dark'] .card-pie {
+  background: linear-gradient(180deg, #312565 0%, #201936 100%);
+}
+body[arco-theme='dark'] .card-interval {
+  background: linear-gradient(180deg, #3d492e 0%, #263827 100%);
+}

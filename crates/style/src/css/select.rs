@@ -1,5 +1,5 @@
 use crate::css::fileinfo::FileWeakRef;
-use crate::css::node::{NodeWeakRef, StyleNode};
+use crate::css::node::NodeWeakRef;
 use crate::css::select_node::SelectorNode;
 use crate::extend::string::StringExtend;
 use crate::extend::vec_str::VecCharExtend;
@@ -188,112 +188,6 @@ impl NewSelector {
   ///
   pub fn value(&self) -> String {
     self.charlist.poly()
-  }
-
-  ///
-  /// 向上查找 是否有 :global 的 rule
-  ///
-  fn has_css_global_rule(node: NodeWeakRef) -> NodeWeakRef {
-    if let Some(ref heap_node) = node {
-      let rule = heap_node.upgrade().unwrap();
-      let rule_heap = rule.borrow();
-      if let Some(SelectorNode::Select(ss)) = rule_heap.selector.as_ref() {
-        if ss.charlist == vec![':', 'g', 'l', 'o', 'b', 'a', 'l'] {
-          node.clone()
-        } else {
-          let parent = rule.deref().borrow().parent.clone();
-          Self::has_css_global_rule(parent)
-        }
-      } else {
-        let parent = rule.deref().borrow().parent.clone();
-        Self::has_css_global_rule(parent)
-      }
-    } else {
-      None
-    }
-  }
-
-  ///
-  /// 计算当前字段是否需要 进行 css_module 处理
-  ///
-  pub fn calc_need_modules(&self) -> Result<bool, String> {
-    let rule = self.parent.as_ref().unwrap().upgrade().unwrap();
-    let file = rule.borrow().file_info.as_ref().unwrap().upgrade().unwrap();
-    if file.borrow().modules {
-      let self_rule = self.parent.as_ref().unwrap().upgrade().unwrap();
-      let node = self_rule.deref().borrow().parent.clone();
-      return if let Some(globalnode) = Self::has_css_global_rule(node) {
-        let rule = globalnode.upgrade().unwrap();
-        for item_node in &rule.borrow().block_node {
-          if matches!(item_node, StyleNode::Var(..)) {
-            return Err(format!(
-              "{} \n -> must not include any style_rule",
-              serde_json::to_string_pretty(&rule).unwrap()
-            ));
-          }
-        }
-        Ok(false)
-      } else {
-        Ok(true)
-      };
-    }
-    Ok(false)
-  }
-
-  ///
-  /// 自动转化 SelectParadigm::SelectWrap 中包裹的字符串 是否需要 进行 css_modules 混合
-  ///
-  pub fn convert_select_wrap(&self, list: &[SelectParadigm], modules: bool) -> Vec<SelectParadigm> {
-    let mut new_list = list.to_owned();
-    let mut rm_index_list = vec![];
-    if modules {
-      let mut index = 0;
-      while index < new_list.len() {
-        let current = new_list.get_mut(index).unwrap();
-        if let SelectParadigm::SelectWrap(selector_txt) = current {
-          let list = selector_txt.to_string().to_char_vec();
-          let char = list.get(0).unwrap();
-          if *char == '.' {
-            let key = list[1..list.len()].to_vec().poly();
-            let rule = self.parent.as_ref().unwrap().upgrade().unwrap();
-            let file = rule.borrow().file_info.as_ref().unwrap().upgrade().unwrap();
-            let hash = &file.borrow().hash_perfix;
-            *selector_txt = format!(".{}_{}", key, hash);
-          }
-        }
-        let current = new_list.get(index).unwrap();
-        let prev = if index == 0 {
-          None
-        } else {
-          new_list.get(index - 1)
-        };
-        // 添加 :global(xx) 的索引位置
-        if let SelectParadigm::SelectWrap(selector_txt) = current {
-          let list = selector_txt.to_string().to_char_vec();
-          if list.get(0) == Some(&'(') && list.last() == Some(&')') {
-            if let Some(SelectParadigm::SelectWrap(prev_selector_txt)) = prev {
-              if prev_selector_txt == ":global" {
-                rm_index_list.push(index);
-              }
-            }
-          }
-        }
-        index += 1;
-      }
-      // 处理 :global(xx)
-      for (index, handle_index) in rm_index_list.into_iter().enumerate() {
-        let clousure_warp_index = handle_index - index;
-        let global_warp_index = handle_index - index - 1;
-        if let SelectParadigm::SelectWrap(clousure_warp) =
-          new_list.get_mut(clousure_warp_index).unwrap()
-        {
-          let list = clousure_warp.to_string().to_char_vec();
-          *clousure_warp = list[1..list.len() - 1].to_vec().poly();
-        }
-        new_list.remove(global_warp_index);
-      }
-    }
-    new_list
   }
 
   ///

@@ -2,6 +2,7 @@ use crate::less::comment::CommentNode;
 use crate::less::fileinfo::FileWeakRef;
 use crate::less::rule::RuleNode;
 use crate::less::var::VarRuleNode;
+use crate::sourcemap::loc::Loc;
 use crate::style_core::context::ParseContext;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -48,5 +49,23 @@ impl StyleNode {
       )?));
     }
     Err("StyleNode -> noting type is matched".to_string())
+  }
+
+  ///
+  /// 收集 文件 上所有 rule 节点的 loc
+  ///
+  pub fn collect_loc(node: StyleNode, list: &mut Vec<Option<Loc>>) {
+    if let StyleNode::Rule(rule) = node {
+      list.push(rule.borrow().loc.as_ref().cloned());
+      for child_node in &rule.borrow().block_node {
+        Self::collect_loc(child_node.clone(), list);
+      }
+    } else if let StyleNode::Var(VarRuleNode::StyleRule(style)) = node {
+      list.push(style.loc.as_ref().cloned());
+    } else if let StyleNode::Var(VarRuleNode::Var(var)) = node {
+      list.push(var.loc.as_ref().cloned());
+    } else if let StyleNode::Comment(cc) = node {
+      list.push(cc.loc.as_ref().cloned());
+    }
   }
 }

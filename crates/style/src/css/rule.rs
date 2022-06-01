@@ -9,6 +9,7 @@ use crate::extend::vec_str::VecCharExtend;
 use crate::sourcemap::loc::{Loc, LocMap};
 use crate::style_core::context::ParseContext;
 use crate::style_core::option::OptionExtend;
+use crate::util::str_handle::{merge_spaces, merge_wrap};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
@@ -18,7 +19,6 @@ use std::fmt::Write;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::util::str_handle::{merge_spaces, merge_wrap};
 
 #[derive(Clone)]
 pub struct RuleNode {
@@ -241,9 +241,7 @@ impl RuleNode {
       }
     }
 
-    let handle_str = |content: &str| {
-      merge_spaces(merge_wrap(content).as_str())
-    };
+    let handle_str = |content: &str| merge_spaces(merge_wrap(content).as_str());
 
     // example -> @keyframes, @font-family
     if select_txt.find('@') == Some(0) {
@@ -266,7 +264,7 @@ impl RuleNode {
           br_char,
           "}"
         )
-          .as_str();
+        .as_str();
       } else {
         *content += format!(
           "{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -283,7 +281,7 @@ impl RuleNode {
           br_char,
           "}"
         )
-          .as_str();
+        .as_str();
       }
 
       // 后续不递归了
@@ -294,9 +292,11 @@ impl RuleNode {
         for (index, rule_res) in rules.iter().enumerate() {
           if index != rules.len() - 1 {
             if !option.minify {
-              writeln!(res, "{}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
+              writeln!(res, "{}{}", tab.clone(), rule_res.code_gen()?)
+                .expect("write stream has error");
             } else {
-              write!(res, " {}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
+              write!(res, " {}{}", tab.clone(), rule_res.code_gen()?)
+                .expect("write stream has error");
             }
           } else {
             write!(res, "{}{}", tab.clone(), rule_res.code_gen()?).expect("write stream has error");
@@ -317,7 +317,7 @@ impl RuleNode {
           "}",
           br_char,
         )
-          .as_ref();
+        .as_ref();
       } else {
         *content += format!(
           "{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -334,12 +334,11 @@ impl RuleNode {
           br_char,
           "}"
         )
-          .as_ref();
+        .as_ref();
       }
     }
 
     for node_ref in self.getrules() {
-      *content = merge_spaces(content);
       node_ref.deref().borrow().code_gen(content, map)?;
     }
 

@@ -19,7 +19,7 @@ impl ValueNode {
     Ok(list)
   }
 
-  fn get_safe(index: usize, list: &Vec<IdentType>) -> Option<&IdentType> {
+  fn get_safe(index: usize, list: &[IdentType]) -> Option<&IdentType> {
     if index < list.len() {
       list.get(index)
     } else {
@@ -27,7 +27,7 @@ impl ValueNode {
     }
   }
 
-  fn get_mut_safe(index: usize, list: &mut Vec<IdentType>) -> Option<&mut IdentType> {
+  fn get_mut_safe(index: usize, list: &mut [IdentType]) -> Option<&mut IdentType> {
     if index < list.len() {
       list.get_mut(index)
     } else {
@@ -35,7 +35,7 @@ impl ValueNode {
     }
   }
 
-  fn scan_calc_expr_replace(list: &mut Vec<IdentType>) -> Result<(), String> {
+  fn scan_calc_expr_replace(list: &mut [IdentType]) -> Result<(), String> {
     // 寻找可能的锚点
     let mut index = 0;
     let mut calc_vec = vec![];

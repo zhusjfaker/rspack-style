@@ -56,6 +56,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             content_interceptor: None,
             ..Default::default()
           },
+          minify: false,
         },
         Some(filepath.clone()),
       )

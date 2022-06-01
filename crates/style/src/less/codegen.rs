@@ -183,7 +183,7 @@ impl ValueNode {
     Ok(list)
   }
 
-  fn get_safe(index: usize, list: &Vec<IdentType>) -> Option<&IdentType> {
+  fn get_safe(index: usize, list: &[IdentType]) -> Option<&IdentType> {
     if index < list.len() {
       list.get(index)
     } else {
@@ -191,7 +191,7 @@ impl ValueNode {
     }
   }
 
-  fn get_mut_safe(index: usize, list: &mut Vec<IdentType>) -> Option<&mut IdentType> {
+  fn get_mut_safe(index: usize, list: &mut [IdentType]) -> Option<&mut IdentType> {
     if index < list.len() {
       list.get_mut(index)
     } else {
@@ -203,10 +203,7 @@ impl ValueNode {
   /// 匹配计算
   /// rgb(255 255 255)
   ///
-  fn match_rgb_expr_calc(
-    mut index: usize,
-    list: &Vec<IdentType>,
-  ) -> (Option<usize>, Vec<&IdentType>) {
+  fn match_rgb_expr_calc(mut index: usize, list: &[IdentType]) -> (Option<usize>, Vec<&IdentType>) {
     let mut res: (Option<usize>, Vec<&IdentType>) = (None, vec![]);
     index += 1;
     while index < list.len() {
@@ -238,7 +235,7 @@ impl ValueNode {
   ///
   fn match_rgba_expr_calc(
     mut index: usize,
-    list: &Vec<IdentType>,
+    list: &[IdentType],
   ) -> (Option<usize>, Vec<&IdentType>) {
     let mut res: (Option<usize>, Vec<&IdentType>) = (None, vec![]);
     index += 2;
@@ -365,7 +362,7 @@ impl ValueNode {
     Ok(())
   }
 
-  fn scan_calc_expr_replace(list: &mut Vec<IdentType>) -> Result<(), String> {
+  fn scan_calc_expr_replace(list: &mut [IdentType]) -> Result<(), String> {
     // 寻找可能的锚点
     let mut index = 0;
     let mut calc_vec = vec![];

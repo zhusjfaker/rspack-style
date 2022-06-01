@@ -1,6 +1,6 @@
+use crate::css::ident::IdentType;
 use crate::css::value::ValueNode;
 use crate::extend::vec_str::VecCharExtend;
-use crate::token::ident::IdentType;
 use std::cmp::Ordering;
 
 impl ValueNode {
@@ -145,15 +145,6 @@ impl ValueNode {
               calc_list.push(now);
             }
           }
-        }
-        IdentType::Var(_) => {
-          return Err("get_no_var_ident_list -> func has error!".to_string());
-        }
-        IdentType::Prop(_) => {
-          return Err("$abc is not support".to_string());
-        }
-        IdentType::InsertVar(_) => {
-          return Err("@{abc} is not support".to_string());
         }
         IdentType::StringConst(op)
         | IdentType::Word(op)

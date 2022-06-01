@@ -14,13 +14,6 @@ use serde_json::{Map, Value};
 use std::cmp::Ordering;
 use std::ops::Deref;
 
-#[derive(Debug, Clone, Serialize, Eq, PartialEq)]
-#[serde(tag = "type", content = "value")]
-enum SelectVarText {
-  Txt(String),
-  Var(String),
-}
-
 #[derive(Debug, Clone, Serialize, Eq, PartialEq, Deserialize)]
 #[serde(tag = "type", content = "value")]
 pub enum SelectParadigm {
@@ -431,10 +424,6 @@ impl NewSelector {
   ///
   pub fn parse(&mut self) -> Result<(), String> {
     let index: usize = 0;
-    // 先判断 可以减少工作量调用
-    if self.charlist.contains(&'@') {
-      self.pure_select_txt()?;
-    }
     let charlist = &self.charlist.clone();
 
     let (_, end) = traversal(
@@ -840,60 +829,5 @@ impl NewSelector {
       return Err(self.errormsg(&res.1).err().unwrap());
     }
     Ok(res)
-  }
-
-  ///
-  /// support var in select_txt
-  /// like @{abc} .a{  .... }
-  ///
-  fn pure_select_txt(&mut self) -> Result<(), String> {
-    let mut record = false;
-    let mut list: Vec<SelectVarText> = vec![];
-    traversal(
-      None,
-      &self.charlist,
-      &mut (|arg, charword| {
-        let (index, temp, _end) = arg;
-        let (_prev, char, next) = charword;
-        if *char == '@' && next == Some(&'{') {
-          if !temp.is_empty() {
-            list.push(SelectVarText::Txt(temp.poly()));
-          }
-          temp.clear();
-          temp.push('@');
-          temp.push('{');
-          *index += 1;
-          record = true
-        } else if *char == '}' && record {
-          temp.push(*char);
-          if !temp.is_empty() {
-            list.push(SelectVarText::Var(temp.poly()));
-          } else {
-            return Err(format!(
-              "select txt {} index is {} -> @ var is not closure",
-              self.charlist.poly(),
-              *index
-            ));
-          }
-          temp.clear();
-          record = false;
-        } else {
-          temp.push(*char);
-        }
-        Ok(())
-      }),
-    )?;
-
-    let mut new_content = "".to_string();
-    if !list.is_empty() {
-      for tt in list {
-        if let SelectVarText::Txt(t) = tt {
-          new_content += &t;
-        }
-      }
-      self.charlist = new_content.to_char_vec();
-    }
-
-    Ok(())
   }
 }

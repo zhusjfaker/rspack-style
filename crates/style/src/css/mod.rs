@@ -2,6 +2,7 @@ pub mod codegen;
 pub mod comment;
 pub mod fileinfo;
 pub mod filenode;
+pub mod ident;
 pub mod import;
 pub mod media;
 pub mod node;

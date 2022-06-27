@@ -1,4 +1,4 @@
-use crate::token::ident::IdentType;
+use crate::less::ident::IdentType;
 
 ///
 /// less 计算 rgb 函数

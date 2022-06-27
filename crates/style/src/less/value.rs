@@ -1,10 +1,10 @@
 use crate::extend::string::StringExtend;
 use crate::extend::vec_str::VecCharExtend;
 use crate::less::fileinfo::FileWeakRef;
+use crate::less::ident::IdentType;
 use crate::less::node::NodeWeakRef;
 use crate::sourcemap::loc::{Loc, LocMap};
 use crate::style_core::scan::traversal;
-use crate::token::ident::IdentType;
 use crate::token::lib::Token;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};

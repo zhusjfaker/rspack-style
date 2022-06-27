@@ -1,10 +1,10 @@
 use crate::css::fileinfo::FileWeakRef;
+use crate::css::ident::IdentType;
 use crate::css::node::NodeWeakRef;
 use crate::extend::string::StringExtend;
 use crate::extend::vec_str::VecCharExtend;
 use crate::sourcemap::loc::{Loc, LocMap};
 use crate::style_core::scan::traversal;
-use crate::token::ident::IdentType;
 use crate::token::lib::Token;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
@@ -458,8 +458,13 @@ impl ValueNode {
             },
           }
         } else if *char == '@' {
-          let (var, end) = self.parse_value_var(index)?;
-          self.word_ident_list.push(IdentType::Var(var.into()));
+          let (word, end) = self.parse_value_word(index)?;
+          println!(
+            "css parse {} warning -> {} may be not allow",
+            self.charlist.poly(),
+            word.as_str()
+          );
+          self.word_ident_list.push(IdentType::Word(word.into()));
           *index = end;
         }
         // 处理结尾词 ignore
@@ -472,11 +477,14 @@ impl ValueNode {
         }
         // 处理prop
         else if *char == '$' {
-          // todo! $ style_rule
-          return Err(format!(
-            "$ style_rule or ~ reference has not support \n {}",
-            self.error_msg(index)
-          ));
+          let (word, end) = self.parse_value_word(index)?;
+          println!(
+            "css parse {} warning -> {} may be not allow",
+            self.charlist.poly(),
+            word
+          );
+          self.word_ident_list.push(IdentType::Word(word.into()));
+          *index = end;
         } else if *char == '~' {
           self.word_ident_list.push(IdentType::Word("~".into()));
         }

@@ -1,6 +1,6 @@
 use rspack_style::extend::string::StringExtend;
+use rspack_style::less::ident::IdentType;
 use rspack_style::less::value::ValueNode;
-use rspack_style::token::ident::IdentType;
 use rspack_style::util::rgb::rgb_calc;
 
 #[test]

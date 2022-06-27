@@ -1,10 +1,10 @@
 use crate::extend::string::StringExtend;
 use crate::extend::vec_str::VecCharExtend;
 use crate::less::fileinfo::FileWeakRef;
+use crate::less::ident::IdentType;
 use crate::less::node::{NodeWeakRef, StyleNode};
 use crate::less::value::ValueNode;
 use crate::less::var::VarRuleNode;
-use crate::token::ident::IdentType;
 use crate::util::rgb::rgb_calc;
 use std::cmp::Ordering;
 use std::ops::Deref;

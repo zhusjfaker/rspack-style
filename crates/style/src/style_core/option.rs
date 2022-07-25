@@ -53,20 +53,9 @@ impl OptionExtend for crate::less::fileinfo::FileInfo {
   }
 }
 
-impl OptionExtend for crate::css::fileinfo::FileInfo {
-  fn get_options(&self) -> ParseOption {
-    self.context.deref().lock().unwrap().option.clone()
-  }
-}
-
 impl OptionExtend for crate::less::rule::RuleNode {
   fn get_options(&self) -> ParseOption {
     self.context.deref().lock().unwrap().option.clone()
   }
 }
 
-impl OptionExtend for crate::css::rule::RuleNode {
-  fn get_options(&self) -> ParseOption {
-    self.context.deref().lock().unwrap().option.clone()
-  }
-}

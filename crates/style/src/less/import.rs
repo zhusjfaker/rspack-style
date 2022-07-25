@@ -244,11 +244,11 @@ impl ImportNode {
         .unwrap();
       match ext {
         StyleExtension::Css => {
-          let node = crate::css::filenode::FileNode::create_disklocation_parse(
+          let node = crate::less::filenode::FileNode::create_disklocation_parse(
             abs_path,
             self.context.clone(),
           )?;
-          importfiles.push(StyleFileNode::Css(node));
+          importfiles.push(StyleFileNode::Less(node));
         }
         StyleExtension::Less => {
           let node = crate::less::filenode::FileNode::create_disklocation_parse(

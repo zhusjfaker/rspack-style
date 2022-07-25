@@ -19,7 +19,7 @@ impl Application {
     let context = Context::new(option, application_fold)?;
     Ok(Application { context })
   }
-
+  
   ///
   /// 修复输出 是否需要压缩
   ///
@@ -28,7 +28,7 @@ impl Application {
     context.clear_render_cache();
     context.option.minify = minify;
   }
-
+  
   ///
   /// 产生代码
   /// 根据 硬盘上 文件
@@ -37,7 +37,7 @@ impl Application {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
-        StyleExtension::Css => crate::css::filenode::FileNode::create_disklocation(
+        StyleExtension::Css => crate::less::filenode::FileNode::create_disklocation(
           filepath.to_string(),
           self.context.clone(),
         ),
@@ -51,16 +51,8 @@ impl Application {
     }
     Err("render -> filepath is not file!".to_string())
   }
-
-  ///
-  /// 产生代码
-  /// 根据 硬盘上 文件
-  /// 降级为 css 处理
-  ///
-  pub fn render_with_css(&self, filepath: &str) -> Result<(String, String), String> {
-    crate::css::filenode::FileNode::create_disklocation(filepath.to_string(), self.context.clone())
-  }
-
+  
+  
   ///
   /// 产生代码
   /// 根据 内存上 内容
@@ -69,7 +61,7 @@ impl Application {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
-        StyleExtension::Css => crate::css::filenode::FileNode::create_txt_content(
+        StyleExtension::Css => crate::less::filenode::FileNode::create_txt_content(
           content.to_string(),
           filepath.to_string(),
           self.context.clone(),
@@ -85,24 +77,8 @@ impl Application {
     }
     Err("render_content -> filepath is not file!".to_string())
   }
-
-  ///
-  /// 产生代码
-  /// 根据 内存上 内容
-  /// 降级为 css 处理
-  ///
-  pub fn render_content_with_css(
-    &self,
-    content: &str,
-    filepath: &str,
-  ) -> Result<(String, String), String> {
-    crate::css::filenode::FileNode::create_txt_content(
-      content.to_string(),
-      filepath.to_string(),
-      self.context.clone(),
-    )
-  }
-
+  
+  
   ///
   /// 产生代码
   /// 并且分层 进入 hashmap
@@ -115,7 +91,7 @@ impl Application {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
-        StyleExtension::Css => crate::css::filenode::FileNode::create_disklocation_into_hashmap(
+        StyleExtension::Css => crate::less::filenode::FileNode::create_disklocation_into_hashmap(
           filepath.to_string(),
           self.context.clone(),
         ),
@@ -129,23 +105,7 @@ impl Application {
     }
     Err("render_into_hashmap -> filepath is not file!".to_string())
   }
-
-  ///
-  /// 产生代码
-  /// 并且分层 进入 hashmap
-  /// 根据 硬盘上 文件
-  /// 降级为 css 处理
-  ///
-  pub fn render_into_hashmap_with_css(
-    &self,
-    filepath: &str,
-  ) -> Result<(HashMap<String, String>, String), String> {
-    crate::css::filenode::FileNode::create_disklocation_into_hashmap(
-      filepath.to_string(),
-      self.context.clone(),
-    )
-  }
-
+  
   ///
   /// 产生代码
   /// 并且分层 进入 hashmap
@@ -159,7 +119,7 @@ impl Application {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
-        StyleExtension::Css => crate::css::filenode::FileNode::create_content_into_hashmap(
+        StyleExtension::Css => crate::less::filenode::FileNode::create_content_into_hashmap(
           content.to_string(),
           filepath.to_string(),
           self.context.clone(),
@@ -179,25 +139,7 @@ impl Application {
     }
     Err("render_content_into_hashmap -> filepath is not file!".to_string())
   }
-
-  ///
-  /// 产生代码
-  /// 并且分层 进入 hashmap
-  /// 根据 内存上 内容
-  /// 降级为 css 处理
-  ///
-  pub fn render_content_into_hashmap_with_css(
-    &self,
-    content: &str,
-    filepath: &str,
-  ) -> Result<(HashMap<String, String>, String), String> {
-    crate::css::filenode::FileNode::create_content_into_hashmap(
-      content.to_string(),
-      filepath.to_string(),
-      self.context.clone(),
-    )
-  }
-
+  
   ///
   /// 解析代码
   ///
@@ -206,11 +148,11 @@ impl Application {
     if let Some(ext) = ext {
       return match ext {
         StyleExtension::Css => {
-          let node = crate::css::filenode::FileNode::create_disklocation_parse(
+          let node = crate::less::filenode::FileNode::create_disklocation_parse(
             filepath.to_string(),
             self.context.clone(),
           )?;
-          Ok(StyleFileNode::Css(node))
+          Ok(StyleFileNode::Less(node))
         }
         StyleExtension::Less => {
           let node = crate::less::filenode::FileNode::create_disklocation_parse(
@@ -225,14 +167,14 @@ impl Application {
     }
     Err("parse-> filepath is not file!".to_string())
   }
-
+  
   ///
   /// 生成默认上下文
   ///
   pub fn default() -> Application {
     Self::new(Default::default(), None).unwrap()
   }
-
+  
   ///
   /// 增加 less.js 的 内容变化
   ///

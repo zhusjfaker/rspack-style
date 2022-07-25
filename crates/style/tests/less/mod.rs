@@ -4,7 +4,6 @@ pub mod hook;
 pub mod import;
 pub mod json;
 pub mod media;
-pub mod modules;
 pub mod parse;
 pub mod render;
 pub mod select;

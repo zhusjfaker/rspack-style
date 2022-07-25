@@ -48,8 +48,8 @@ pub type FileWeakRef = Option<Weak<RefCell<FileInfo>>>;
 
 impl Serialize for FileInfo {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
+    where
+      S: Serializer,
   {
     let mut state = serializer.serialize_struct("FileInfo", 3)?;
     state.serialize_field("disk_location", &self.disk_location)?;
@@ -85,7 +85,7 @@ impl FileInfo {
     heapobj.borrow_mut().self_weak = Some(Rc::downgrade(&heapobj));
     heapobj
   }
-
+  
   ///
   /// 获取 某文件下 所有的 变量节点
   /// 递归 获取所有 fileinfo 上 block_node -> var 节点
@@ -94,27 +94,26 @@ impl FileInfo {
   pub fn collect_vars(&self) -> Vec<VarNode> {
     let mut varlist = vec![];
     for filenode in &self.import_files {
-      if let StyleFileNode::Less(less_node) = filenode {
-        for item in &less_node.info.borrow().block_node {
-          if let StyleNode::Var(VarRuleNode::Var(var)) = &item {
-            varlist.push(var.clone());
-          }
+      let StyleFileNode::Less(less_node) = filenode;
+      for item in &less_node.info.borrow().block_node {
+        if let StyleNode::Var(VarRuleNode::Var(var)) = &item {
+          varlist.push(var.clone());
         }
-        // 递归收集
-        let mut child_var_list = less_node.info.borrow().collect_vars();
-        varlist.append(&mut child_var_list);
       }
+      // 递归收集
+      let mut child_var_list = less_node.info.borrow().collect_vars();
+      varlist.append(&mut child_var_list);
     }
     varlist
   }
-
+  
   ///
   /// 生成整个文件的 locmap 地图
   ///
   pub fn get_loc_by_content(chars: &[char]) -> LocMap {
     LocMap::new(chars)
   }
-
+  
   ///
   /// 获取指定文件的路径
   /// 如果是路径 -> 直接返回该路径
@@ -132,7 +131,7 @@ impl FileInfo {
       ))
     }
   }
-
+  
   ///
   /// 是否是相对路径
   ///
@@ -140,7 +139,7 @@ impl FileInfo {
     let path = Path::new(txt);
     path.is_relative()
   }
-
+  
   ///
   /// 文件查找对应解析路径
   /// 返回值 -> (路径, 文件内容)

@@ -60,21 +60,6 @@ impl FileNode {
               }
             }
           }
-          StyleFileNode::Css(css_node) => {
-            let has_codegen_record = {
-              let context = info.context.lock().unwrap();
-              context.has_codegen_record(&css_node.info.borrow().disk_location)
-            };
-            if !has_codegen_record {
-              let import_res = css_node.code_gen()?;
-              res += &import_res;
-              if !option.minify {
-                res += "\n";
-              } else {
-                res += " ";
-              }
-            }
-          }
         }
       }
     }
@@ -135,15 +120,6 @@ impl FileNode {
             };
             if !has_codegen_record {
               less_node.code_gen_into_map(map)?;
-            }
-          }
-          StyleFileNode::Css(css_node) => {
-            let has_codegen_record = {
-              let context = info.context.lock().unwrap();
-              context.has_codegen_record(&css_node.info.borrow().disk_location)
-            };
-            if !has_codegen_record {
-              css_node.code_gen_into_map(map)?;
             }
           }
         }

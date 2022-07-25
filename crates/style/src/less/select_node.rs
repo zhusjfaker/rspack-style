@@ -5,7 +5,6 @@ use crate::less::select::{NewSelector, SelectParadigm};
 use crate::less::var::HandleResult;
 use crate::sourcemap::loc::{Loc, LocMap};
 use crate::style_core::option::OptionExtend;
-use crate::token::select::TokenCombinaChar;
 use crate::util::str_enum::EnumToChar;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -96,20 +95,6 @@ impl SelectorNode {
   }
 
   ///
-  /// 是否需要css_module
-  /// 第一个 是否需要
-  /// 第二个 content_hash
-  ///
-  pub fn need_css_modules(&self) -> (bool, Option<String>) {
-    if let Some(file) = self.get_file() {
-      if file.borrow().modules {
-        return (true, Some(file.borrow().hash_perfix.clone()));
-      }
-    }
-    (false, None)
-  }
-
-  ///
   /// 获取对应 FileInfo 节点
   ///
   pub fn get_file(&self) -> Option<FileRef> {
@@ -155,65 +140,7 @@ impl SelectorNode {
     map.insert(class_word);
     format!("{}_{}", word, hash_value)
   }
-
-  ///
-  /// css_module 的 词缀 转化
-  ///
-  pub fn convert_paradigm_to_word(
-    &self,
-    list: &Vec<SelectParadigm>,
-    map: &mut HashSet<String>,
-  ) -> Result<Vec<SelectParadigm>, String> {
-    let mut new_list = vec![];
-    let mut index = 0;
-    let mut has_global = false;
-    while index < list.len() {
-      let par = list.get(index).unwrap();
-      let nextpar = if index + 1 < list.len() {
-        list.get(index + 1)
-      } else {
-        None
-      };
-      let prevpar = if index > 0 { list.get(index - 1) } else { None };
-      match par {
-        SelectParadigm::SelectWrap(ss) => {
-          if ss == ":global" {
-            if nextpar == Some(&SelectParadigm::CominaWrap(TokenCombinaChar::Space)) && !has_global
-            {
-              has_global = true;
-              index += 1;
-            }
-          } else if &ss[0..1] == "." && !has_global {
-            // 转化 class 样式选择器
-            let new_value =
-              self.convert_class_paradigm(ss.to_string(), "@@@hash_str_replace_value@@@", map);
-            new_list.push(SelectParadigm::SelectWrap(new_value));
-          } else if &ss[0..1] == "." && has_global {
-            // 不转化 class 样式选择器
-            new_list.push(par.clone());
-          } else if &ss[0..1] == "("
-            && &ss[ss.len() - 1..ss.len()] == ")"
-            && prevpar == Some(&SelectParadigm::SelectWrap(":global".to_string()))
-          {
-            // 第一位'(' 最后一位是')'
-            let new_value = ss[1..ss.len() - 1].to_string();
-            new_list.push(SelectParadigm::SelectWrap(new_value));
-          } else {
-            new_list.push(par.clone())
-          }
-        }
-        SelectParadigm::CominaWrap(..) | SelectParadigm::KeyWrap(..) => new_list.push(par.clone()),
-        _ => {
-          return Err(format!(
-            "{:#?} \n -> list_paradigm must not include SelectParadigm::VarWrap",
-            list
-          ));
-        }
-      }
-      index += 1;
-    }
-    Ok(new_list)
-  }
+  
 
   ///
   /// 计算语义 合并计算
@@ -221,21 +148,12 @@ impl SelectorNode {
   pub fn calc_paradigm(
     &self,
     list: Vec<Vec<SelectParadigm>>,
-    css_module_info: (bool, Option<String>),
-    map: &mut HashSet<String>,
   ) -> Result<String, String> {
     let mut select_res = "".to_string();
-    let (css_module, _) = css_module_info;
 
     for (index, index_list) in list.iter().enumerate() {
       let mut txt = "".to_string();
-
-      let calc_index_list = if css_module {
-        self.convert_paradigm_to_word(index_list, map)?
-      } else {
-        index_list.to_owned()
-      };
-
+      let calc_index_list = index_list.to_owned();
       for par in calc_index_list.iter() {
         match par {
           SelectParadigm::SelectWrap(ss) => {
@@ -258,16 +176,14 @@ impl SelectorNode {
         select_res += ",";
       }
     }
-
     Ok(select_res)
   }
 
   ///
   /// 代码生成方法
   ///
-  pub fn code_gen(&self, map: &mut HashSet<String>) -> Result<(String, String), String> {
+  pub fn code_gen(&self) -> Result<(String, String), String> {
     let mut node = None;
-    let css_module_info = self.need_css_modules();
     if let Self::Select(ss) = &self {
       node = ss.parent.clone();
     } else if let Self::Media(ss) = &self {
@@ -288,7 +204,7 @@ impl SelectorNode {
     if let Some(snode) = nearly_select_node {
       if let SelectorNode::Select(s) = snode.upgrade().unwrap().borrow().selector.as_ref().unwrap()
       {
-        select_res = self.calc_paradigm(s.code_gen()?, css_module_info, map)?;
+        select_res = self.calc_paradigm(s.code_gen()?)?;
       }
     }
 

@@ -14,7 +14,6 @@ use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
 use std::cell::RefCell;
-use std::collections::HashSet;
 use std::fmt::Write;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
@@ -44,8 +43,8 @@ pub struct RuleNode {
 
 impl Serialize for RuleNode {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
+    where
+      S: Serializer,
   {
     let mut state = serializer.serialize_struct("RuleNode", 4)?;
     state.serialize_field("content", &self.origin_charlist.poly())?;
@@ -93,7 +92,7 @@ impl RuleNode {
     let heapobj = Rc::new(RefCell::new(obj));
     let wek_self = Rc::downgrade(&heapobj);
     heapobj.borrow_mut().weak_self = Some(wek_self.clone());
-
+    
     let selector = match SelectorNode::new(selector_txt, &mut change_loc, Some(wek_self), file_info)
     {
       Ok(result) => result,
@@ -113,7 +112,7 @@ impl RuleNode {
     heapobj.borrow_mut().parse_heap()?;
     Ok(heapobj)
   }
-
+  
   ///
   /// 反序列化
   ///
@@ -175,7 +174,7 @@ impl RuleNode {
     heapobj.borrow_mut().block_node = block_node_recovery_list;
     Ok(heapobj)
   }
-
+  
   ///
   /// parse 当前文件下 所有的 select 字符串
   /// 需要 第一遍 完成基本遍历
@@ -195,7 +194,7 @@ impl RuleNode {
     }
     Ok(())
   }
-
+  
   pub fn visit_mut_file(&self, fileinfo: &mut FileInfo) {
     self.block_node.iter().for_each(|x| {
       if let StyleNode::Rule(rule) = x {
@@ -203,10 +202,10 @@ impl RuleNode {
       }
     });
   }
-
+  
   pub fn getrules(&self) -> Vec<NodeRef> {
     let mut list = vec![];
-
+    
     self.block_node.iter().for_each(|x| {
       if let StyleNode::Rule(rule) = x {
         list.push(rule.clone());
@@ -214,7 +213,7 @@ impl RuleNode {
     });
     list
   }
-
+  
   pub fn get_style_rule(&self) -> Vec<StyleRuleNode> {
     let mut list = vec![];
     self.block_node.iter().for_each(|x| {
@@ -224,14 +223,14 @@ impl RuleNode {
     });
     list
   }
-
-  pub fn code_gen(&self, content: &mut String, map: &mut HashSet<String>) -> Result<(), String> {
+  
+  pub fn code_gen(&self, content: &mut String) -> Result<(), String> {
     let rules = self.get_style_rule();
-    let (select_txt, media_txt) = self.selector.as_ref().unwrap().code_gen(map).unwrap();
+    let (select_txt, media_txt) = self.selector.as_ref().unwrap().code_gen().unwrap();
     let mut tab: String = "".to_string();
     let mut index = 0;
     let option = self.get_options();
-
+    
     let mut br_char = "\n";
     if option.minify {
       br_char = " ";
@@ -241,9 +240,9 @@ impl RuleNode {
         index += 1;
       }
     }
-
+    
     let handle_str = |content: &str| merge_spaces(merge_wrap(content).as_str());
-
+    
     // example -> @keyframes, @font-family
     if select_txt.find('@') == Some(0) {
       let single_key_rule_content = {
@@ -253,7 +252,7 @@ impl RuleNode {
           self.origin_charlist.poly()
         }
       };
-
+      
       if media_txt.is_empty() {
         *content += format!(
           "{}{}{}{}{}{}{}",
@@ -265,7 +264,7 @@ impl RuleNode {
           br_char,
           "}"
         )
-        .as_str();
+          .as_str();
       } else {
         *content += format!(
           "{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -282,9 +281,9 @@ impl RuleNode {
           br_char,
           "}"
         )
-        .as_str();
+          .as_str();
       }
-
+      
       // 后续不递归了
       return Ok(());
     } else if !rules.is_empty() {
@@ -305,7 +304,7 @@ impl RuleNode {
         }
         Ok(res)
       };
-
+      
       if media_txt.is_empty() {
         *content += format!(
           "{}{}{}{}{}{}{}{}",
@@ -318,7 +317,7 @@ impl RuleNode {
           "}",
           br_char,
         )
-        .as_ref();
+          .as_ref();
       } else {
         *content += format!(
           "{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -335,14 +334,14 @@ impl RuleNode {
           br_char,
           "}"
         )
-        .as_ref();
+          .as_ref();
       }
     }
-
+    
     for node_ref in self.getrules() {
-      node_ref.deref().borrow().code_gen(content, map)?;
+      node_ref.deref().borrow().code_gen(content)?;
     }
-
+    
     Ok(())
   }
 }

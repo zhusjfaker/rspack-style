@@ -3,10 +3,9 @@ use crate::style_core::extension::StyleExtension;
 use crate::style_core::filenode::StyleFileNode;
 use crate::style_core::option::ParseOption;
 use crate::util::file::get_dir;
-use crate::util::hash::StyleHash;
 use crate::util::str_enum::StringToEnum;
 use serde_json::{Map, Value};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::path::Path;
 use std::rc::Rc;
@@ -244,33 +243,10 @@ impl Context {
           context: self.weak_ref.as_ref().unwrap().upgrade().unwrap(),
           self_weak: None,
           import_files: vec![],
-          modules: false,
-          class_selector_collect: Default::default(),
-          hash_perfix: "".to_string(),
           resolve_extension,
         };
-        if let Some(value) = map.get("class_selector_collect") {
-          let class_selector_collect = value
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|x| x.as_str().unwrap().to_string())
-            .collect::<Vec<String>>();
-          let mut set = HashSet::new();
-          for item in class_selector_collect {
-            set.insert(item);
-          }
-          obj.class_selector_collect = set;
-        }
-        let need_modules = crate::less::filenode::FileNode::is_need_css_modules(
-          obj.disk_location.as_str(),
-          self.option.modules,
-        );
-        obj.modules = need_modules;
         if let Some(Value::String(origin_txt_content)) = json_origin_txt_content {
           obj.origin_txt_content = origin_txt_content.to_string();
-          obj.hash_perfix =
-            StyleHash::generate_css_module_hash(&obj.disk_location, origin_txt_content);
           obj.origin_charlist = obj.origin_txt_content.to_char_vec();
         } else {
           return Err("deserializer FileNode -> origin_txt_content is empty!".to_string());
@@ -329,34 +305,10 @@ impl Context {
           context: self.weak_ref.as_ref().unwrap().upgrade().unwrap(),
           self_weak: None,
           import_files: vec![],
-          modules: false,
-          class_selector_collect: Default::default(),
-          hash_perfix: "".to_string(),
           resolve_extension,
         };
-        
-        if let Some(value) = map.get("class_selector_collect") {
-          let class_selector_collect = value
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|x| x.as_str().unwrap().to_string())
-            .collect::<Vec<String>>();
-          let mut set = HashSet::new();
-          for item in class_selector_collect {
-            set.insert(item);
-          }
-          obj.class_selector_collect = set;
-        }
-        let need_modules = crate::less::filenode::FileNode::is_need_css_modules(
-          obj.disk_location.as_str(),
-          self.option.modules,
-        );
-        obj.modules = need_modules;
         if let Some(Value::String(origin_txt_content)) = json_origin_txt_content {
           obj.origin_txt_content = origin_txt_content.to_string();
-          obj.hash_perfix =
-            StyleHash::generate_css_module_hash(&obj.disk_location, origin_txt_content);
           obj.origin_charlist = obj.origin_txt_content.to_char_vec();
         } else {
           return Err("deserializer FileNode -> origin_txt_content is empty!".to_string());

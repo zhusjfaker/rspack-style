@@ -33,7 +33,7 @@ impl Application {
   /// 产生代码
   /// 根据 硬盘上 文件
   ///
-  pub fn render(&self, filepath: &str) -> Result<(String, String), String> {
+  pub fn render(&self, filepath: &str) -> Result<String, String> {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
@@ -57,7 +57,7 @@ impl Application {
   /// 产生代码
   /// 根据 内存上 内容
   ///
-  pub fn render_content(&self, content: &str, filepath: &str) -> Result<(String, String), String> {
+  pub fn render_content(&self, content: &str, filepath: &str) -> Result<String, String> {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
@@ -87,7 +87,7 @@ impl Application {
   pub fn render_into_hashmap(
     &self,
     filepath: &str,
-  ) -> Result<(HashMap<String, String>, String), String> {
+  ) -> Result<HashMap<String, String>, String> {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {
@@ -115,7 +115,7 @@ impl Application {
     &self,
     content: &str,
     filepath: &str,
-  ) -> Result<(HashMap<String, String>, String), String> {
+  ) -> Result<HashMap<String, String>, String> {
     let ext = StyleExtension::from_filepath(filepath);
     if let Some(ext) = ext {
       return match ext {

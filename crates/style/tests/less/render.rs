@@ -6,7 +6,7 @@ use rspack_style::util::file::path_resolve;
 fn test_less_render() {
   let filepath = path_resolve("assets/test.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   // let context1 = Context::new(Default::default(), Some(filepath.clone())).unwrap();
   // let info = context1.parse(filepath).unwrap();
   // let json = serde_json::to_string_pretty(&info).unwrap();
@@ -161,7 +161,7 @@ fn test_keyframe_at_select_minify_render() {
   let filepath = path_resolve("assets/keyframes.less");
   let app = Application::default();
   app.set_minify(true);
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   assert_eq!(false, res.contains("\n"));
 }
@@ -170,7 +170,7 @@ fn test_keyframe_at_select_minify_render() {
 fn test_keyframe_at_select_render() {
   let filepath = path_resolve("assets/keyframes.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   let target_code = r#"
 .a, .b {
@@ -225,7 +225,7 @@ fn test_demo_minify_render() {
   let filepath = path_resolve("assets/demo.less");
   let app = Application::default();
   app.set_minify(true);
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   assert_eq!(false, res.contains("\n"))
 }
@@ -234,7 +234,7 @@ fn test_demo_minify_render() {
 fn test_demo_render() {
   let filepath = path_resolve("assets/demo.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   let target_code = r#"
   h2 {
@@ -296,7 +296,7 @@ textarea .b {
 fn test_string_const_support_var_render() {
   let filepath = path_resolve("assets/stringconst.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   let target_code = r#"
 .d {
@@ -315,7 +315,7 @@ fn test_string_const_support_var_render() {
 fn test_select_support_var_render() {
   let filepath = path_resolve("assets/select_var.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   let target_code = r#"
 .a {
@@ -352,7 +352,7 @@ fn test_multi_file_render() {
 fn test_select_mixin_render() {
   let filepath = path_resolve("assets/mixin.less");
   let app = Application::default();
-  let res = app.render(filepath.as_str()).unwrap().0;
+  let res = app.render(filepath.as_str()).unwrap();
   println!("{}", res);
   //   let target_code = r#"
   // .a {
@@ -379,8 +379,8 @@ fn test_less_mix_css_render() {
   let less_filepath = path_resolve("assets/css-less/index.less");
   let css_filepath = path_resolve("assets/css-less/main.css");
   let app = Application::default();
-  let less_output = app.render(less_filepath.as_str()).unwrap().0;
-  let css_output = app.render(css_filepath.as_str()).unwrap().0;
+  let less_output = app.render(less_filepath.as_str()).unwrap();
+  let css_output = app.render(css_filepath.as_str()).unwrap();
   println!("css -> \n {}", css_output);
   println!("less -> \n {}", less_output);
   assert_eq!(1, 1)

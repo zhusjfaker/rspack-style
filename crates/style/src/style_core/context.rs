@@ -3,10 +3,9 @@ use crate::style_core::extension::StyleExtension;
 use crate::style_core::filenode::StyleFileNode;
 use crate::style_core::option::ParseOption;
 use crate::util::file::get_dir;
-use crate::util::hash::StyleHash;
 use crate::util::str_enum::StringToEnum;
 use serde_json::{Map, Value};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 use std::path::Path;
 use std::rc::Rc;
@@ -95,14 +94,14 @@ impl Context {
     }
     Ok(heap_obj)
   }
-
+  
   ///
   /// 查询 缓存上 翻译结果
   ///
   pub fn get_parse_cache(&self, file_path: &str) -> Result<Option<StyleFileNode>, String> {
     self.recovery_parse_object(file_path)
   }
-
+  
   ///
   /// 添加 缓存上 翻译结果
   ///
@@ -113,7 +112,7 @@ impl Context {
       filecache.insert(file_path.to_string(), file_info_json);
     }
   }
-
+  
   ///
   /// 清除 parse cache
   /// 由于现在 缓存的是 指针 只能 单次 transform 同一个文件多次使用
@@ -121,14 +120,14 @@ impl Context {
   pub fn clear_parse_cache(&mut self) {
     self.filecache.lock().unwrap().clear();
   }
-
+  
   ///
   /// 获取选项
   ///
   pub fn get_options(&self) -> ParseOption {
     self.option.clone()
   }
-
+  
   ///
   /// 安全设置 include-path
   ///
@@ -139,28 +138,28 @@ impl Context {
       }
     });
   }
-
+  
   ///
   /// 增加一个css transform 下 @import 引用生成的记录
   ///
   pub fn add_codegen_record(&mut self, path: &str) {
     self.code_gen_file_path.push(path.to_string());
   }
-
+  
   ///
   /// 清除本次 codegen 文件的记录
   ///
   pub fn clear_codegen_record(&mut self) {
     self.code_gen_file_path.clear();
   }
-
+  
   ///
   /// 是否已经生成过 该文件
   ///
   pub fn has_codegen_record(&self, path: &str) -> bool {
     self.code_gen_file_path.contains(&path.to_string())
   }
-
+  
   ///
   /// 插入 生成 样式文件的缓存
   ///
@@ -171,28 +170,28 @@ impl Context {
       .unwrap()
       .insert(filepath.to_string(), source.to_string());
   }
-
+  
   ///
   /// 清除本次 codegen 文件的记录
   ///
   pub fn clear_render_cache(&mut self) {
     self.render_cache.lock().unwrap().clear();
   }
-
+  
   ///
   /// 获取 codegen 缓存 目标样式代码
   ///
   pub fn get_render_cache(&self, filepath: &str) -> Option<String> {
     self.render_cache.lock().unwrap().get(filepath).cloned()
   }
-
+  
   ///
   /// 生成默认上下文
   ///
   pub fn default() -> ParseContext {
     Self::new(Default::default(), None).unwrap()
   }
-
+  
   ///
   /// 递归恢复 json 上下文
   ///
@@ -210,7 +209,7 @@ impl Context {
     }
     Ok(None)
   }
-
+  
   ///
   /// 递归调用 json 反序列化 自制方法
   ///
@@ -232,10 +231,10 @@ impl Context {
       .to_enum::<StyleExtension>()
       .unwrap();
     let resolve_extension = ext;
-
+    
     match resolve_extension {
       StyleExtension::Css => {
-        let mut obj = crate::css::fileinfo::FileInfo {
+        let mut obj = crate::less::fileinfo::FileInfo {
           disk_location,
           block_node: vec![],
           origin_txt_content: "".to_string(),
@@ -244,40 +243,17 @@ impl Context {
           context: self.weak_ref.as_ref().unwrap().upgrade().unwrap(),
           self_weak: None,
           import_files: vec![],
-          modules: false,
-          class_selector_collect: Default::default(),
-          hash_perfix: "".to_string(),
           resolve_extension,
         };
-        if let Some(value) = map.get("class_selector_collect") {
-          let class_selector_collect = value
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|x| x.as_str().unwrap().to_string())
-            .collect::<Vec<String>>();
-          let mut set = HashSet::new();
-          for item in class_selector_collect {
-            set.insert(item);
-          }
-          obj.class_selector_collect = set;
-        }
-        let need_modules = crate::css::filenode::FileNode::is_need_css_modules(
-          obj.disk_location.as_str(),
-          self.option.modules,
-        );
-        obj.modules = need_modules;
         if let Some(Value::String(origin_txt_content)) = json_origin_txt_content {
           obj.origin_txt_content = origin_txt_content.to_string();
-          obj.hash_perfix =
-            StyleHash::generate_css_module_hash(&obj.disk_location, origin_txt_content);
           obj.origin_charlist = obj.origin_txt_content.to_char_vec();
         } else {
           return Err("deserializer FileNode -> origin_txt_content is empty!".to_string());
         }
-
+        
         if self.option.sourcemap {
-          obj.locmap = Some(crate::css::fileinfo::FileInfo::get_loc_by_content(
+          obj.locmap = Some(crate::less::fileinfo::FileInfo::get_loc_by_content(
             &obj.origin_charlist,
           ));
         }
@@ -286,25 +262,27 @@ impl Context {
           for json_item in disk_location {
             if let Value::Object(json_import_file_node) = json_item {
               let import_info = json_import_file_node
+                .get("value")
+                .unwrap()
+                .as_object()
+                .unwrap()
                 .get("info")
                 .unwrap()
                 .as_object()
                 .unwrap();
               let import_info_obj = self.deserializer(import_info)?;
-              if let StyleFileNode::Css(css_node) = import_info_obj {
-                obj.import_files.push(css_node);
-              }
+              obj.import_files.push(import_info_obj);
             }
           }
         }
-
+        
         let info = obj.toheap();
         let json_block_node = map.get("block_node");
         let mut block_node_recovery_list = vec![];
         if let Some(Value::Array(block_nodes)) = json_block_node {
           for json_node in block_nodes {
             if let Value::Object(json_stylenode) = json_node {
-              block_node_recovery_list.push(crate::css::node::StyleNode::deserializer(
+              block_node_recovery_list.push(crate::less::node::StyleNode::deserializer(
                 json_stylenode,
                 self.weak_ref.as_ref().unwrap().upgrade().unwrap().clone(),
                 None,
@@ -314,9 +292,8 @@ impl Context {
           }
         }
         info.borrow_mut().block_node = block_node_recovery_list;
-        let node = crate::css::filenode::FileNode { info };
-
-        Ok(StyleFileNode::Css(node))
+        let node = crate::less::filenode::FileNode { info };
+        Ok(StyleFileNode::Less(node))
       }
       StyleExtension::Less => {
         let mut obj = crate::less::fileinfo::FileInfo {
@@ -328,39 +305,15 @@ impl Context {
           context: self.weak_ref.as_ref().unwrap().upgrade().unwrap(),
           self_weak: None,
           import_files: vec![],
-          modules: false,
-          class_selector_collect: Default::default(),
-          hash_perfix: "".to_string(),
           resolve_extension,
         };
-
-        if let Some(value) = map.get("class_selector_collect") {
-          let class_selector_collect = value
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|x| x.as_str().unwrap().to_string())
-            .collect::<Vec<String>>();
-          let mut set = HashSet::new();
-          for item in class_selector_collect {
-            set.insert(item);
-          }
-          obj.class_selector_collect = set;
-        }
-        let need_modules = crate::less::filenode::FileNode::is_need_css_modules(
-          obj.disk_location.as_str(),
-          self.option.modules,
-        );
-        obj.modules = need_modules;
         if let Some(Value::String(origin_txt_content)) = json_origin_txt_content {
           obj.origin_txt_content = origin_txt_content.to_string();
-          obj.hash_perfix =
-            StyleHash::generate_css_module_hash(&obj.disk_location, origin_txt_content);
           obj.origin_charlist = obj.origin_txt_content.to_char_vec();
         } else {
           return Err("deserializer FileNode -> origin_txt_content is empty!".to_string());
         }
-
+        
         if self.option.sourcemap {
           obj.locmap = Some(crate::less::fileinfo::FileInfo::get_loc_by_content(
             &obj.origin_charlist,
@@ -383,7 +336,7 @@ impl Context {
             }
           }
         }
-
+        
         let info = obj.toheap();
         let json_block_node = map.get("block_node");
         let mut block_node_recovery_list = vec![];

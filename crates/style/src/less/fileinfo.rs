@@ -9,7 +9,6 @@ use crate::util::file::{path_join, readfile};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use std::cell::RefCell;
-use std::collections::HashSet;
 use std::fmt::{Debug, Formatter};
 use std::path::Path;
 use std::rc::{Rc, Weak};
@@ -32,12 +31,6 @@ pub struct FileInfo {
   pub self_weak: FileWeakRef,
   // 该文件的引用文件
   pub import_files: Vec<StyleFileNode>,
-  // 是否 codegen 时需要处理 css_module
-  pub modules: bool,
-  // 处理 css 所有的 类选择器的 合集 已经去重
-  pub class_selector_collect: HashSet<String>,
-  // css_modules 需要增加的 hash 尾串
-  pub hash_perfix: String,
   // 处理文件类型
   pub resolve_extension: StyleExtension,
 }
@@ -48,16 +41,14 @@ pub type FileWeakRef = Option<Weak<RefCell<FileInfo>>>;
 
 impl Serialize for FileInfo {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
+    where
+      S: Serializer,
   {
-    let mut state = serializer.serialize_struct("FileInfo", 3)?;
+    let mut state = serializer.serialize_struct("FileInfo", 5)?;
     state.serialize_field("disk_location", &self.disk_location)?;
     state.serialize_field("origin_txt_content", &self.origin_txt_content)?;
     state.serialize_field("block_node", &self.block_node)?;
     state.serialize_field("import_file", &self.import_files)?;
-    state.serialize_field("class_selector_collect", &self.class_selector_collect)?;
-    state.serialize_field("hash_perfix", &self.hash_perfix)?;
     state.serialize_field("resolve_extension", &self.resolve_extension)?;
     state.end()
   }
@@ -69,8 +60,6 @@ impl Debug for FileInfo {
       .field("disk_location", &self.disk_location)
       .field("block_node", &self.block_node)
       .field("import_file", &self.import_files)
-      .field("class_selector_collect", &self.class_selector_collect)
-      .field("hash_perfix", &self.hash_perfix)
       .field("resolve_extension", &self.resolve_extension)
       .finish()
   }
@@ -85,7 +74,7 @@ impl FileInfo {
     heapobj.borrow_mut().self_weak = Some(Rc::downgrade(&heapobj));
     heapobj
   }
-
+  
   ///
   /// 获取 某文件下 所有的 变量节点
   /// 递归 获取所有 fileinfo 上 block_node -> var 节点
@@ -94,27 +83,26 @@ impl FileInfo {
   pub fn collect_vars(&self) -> Vec<VarNode> {
     let mut varlist = vec![];
     for filenode in &self.import_files {
-      if let StyleFileNode::Less(less_node) = filenode {
-        for item in &less_node.info.borrow().block_node {
-          if let StyleNode::Var(VarRuleNode::Var(var)) = &item {
-            varlist.push(var.clone());
-          }
+      let StyleFileNode::Less(less_node) = filenode;
+      for item in &less_node.info.borrow().block_node {
+        if let StyleNode::Var(VarRuleNode::Var(var)) = &item {
+          varlist.push(var.clone());
         }
-        // 递归收集
-        let mut child_var_list = less_node.info.borrow().collect_vars();
-        varlist.append(&mut child_var_list);
       }
+      // 递归收集
+      let mut child_var_list = less_node.info.borrow().collect_vars();
+      varlist.append(&mut child_var_list);
     }
     varlist
   }
-
+  
   ///
   /// 生成整个文件的 locmap 地图
   ///
   pub fn get_loc_by_content(chars: &[char]) -> LocMap {
     LocMap::new(chars)
   }
-
+  
   ///
   /// 获取指定文件的路径
   /// 如果是路径 -> 直接返回该路径
@@ -132,7 +120,7 @@ impl FileInfo {
       ))
     }
   }
-
+  
   ///
   /// 是否是相对路径
   ///
@@ -140,7 +128,7 @@ impl FileInfo {
     let path = Path::new(txt);
     path.is_relative()
   }
-
+  
   ///
   /// 文件查找对应解析路径
   /// 返回值 -> (路径, 文件内容)

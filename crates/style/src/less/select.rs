@@ -30,6 +30,7 @@ pub enum SelectParadigm {
   CominaWrap(TokenCombinaChar),
   VarWrap(char),
   KeyWrap(String),
+  MixinWrap((String, Vec<String>)),
 }
 
 impl SelectParadigm {
@@ -61,6 +62,9 @@ impl Paradigm for Vec<SelectParadigm> {
       SelectParadigm::KeyWrap(cc) => {
         txt = cc.clone();
       }
+      SelectParadigm::MixinWrap(_cc) => {
+        //todo!
+      }
     });
     txt
   }
@@ -70,28 +74,28 @@ impl Paradigm for Vec<SelectParadigm> {
 pub struct NewSelector {
   // 字符串规则 根据逗号分割
   pub paradigm_vec: Vec<Vec<SelectParadigm>>,
-
+  
   // 坐标位置
   pub loc: Option<Loc>,
-
+  
   // 内部处理 地图
   map: LocMap,
-
+  
   // 字符串 操作 序列
   pub charlist: Vec<char>,
-
+  
   // 节点 父节点
   // 延迟赋值
   pub parent: NodeWeakRef,
-
+  
   // 文件节点
   pub fileinfo: FileWeakRef,
 }
 
 impl Serialize for NewSelector {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
+    where
+      S: Serializer,
   {
     let mut state = serializer.serialize_struct("FileInfo", 3)?;
     state.serialize_field("loc", &self.loc)?;
@@ -121,7 +125,7 @@ impl NewSelector {
       fileinfo,
     }
   }
-
+  
   ///
   /// 向上查找 最近 select 节点 非 media
   ///
@@ -141,7 +145,7 @@ impl NewSelector {
       None
     }
   }
-
+  
   ///
   /// 反序列化
   ///
@@ -184,20 +188,20 @@ impl NewSelector {
     }
     Ok(select)
   }
-
+  
   ///
   /// 尽量减少调用次数
   ///
   pub fn value(&self) -> String {
     self.charlist.poly()
   }
-
+  
   ///
   /// 生成当前 select 字符
   ///
   pub fn code_gen(&self) -> Result<Vec<Vec<SelectParadigm>>, String> {
     let mut split_select_txt: Vec<Vec<SelectParadigm>> = vec![];
-
+    
     for list in self.paradigm_vec.iter() {
       // 计算父 表达式
       let self_rule = self.parent.as_ref().unwrap().upgrade().unwrap();
@@ -207,16 +211,16 @@ impl NewSelector {
       if let Some(any_parent_rule) = select_rule_node {
         let heap_any_parent_rule = any_parent_rule.upgrade().unwrap();
         if let Some(SelectorNode::Select(ps)) =
-          heap_any_parent_rule.deref().borrow().selector.as_ref()
+        heap_any_parent_rule.deref().borrow().selector.as_ref()
         {
           parent_select_txt = ps.code_gen()?;
         };
       }
-
+      
       // 清洗后 拼接自我结果
       let mut self_list = vec![];
       let mut has_var = false;
-
+      
       // 计算自己
       let mut var_index = -1;
       for (np, p) in list.iter().enumerate() {
@@ -226,10 +230,10 @@ impl NewSelector {
           has_var = true;
         }
       }
-
+      
       if var_index > -1 {
         has_var = true;
-
+        
         for expr in parent_select_txt.iter() {
           let mut cplist = list.clone();
           cplist.remove(var_index as usize);
@@ -241,7 +245,7 @@ impl NewSelector {
       } else {
         self_list.push(list.clone());
       }
-
+      
       if has_var || parent_select_txt.is_empty() {
         if !self_list.is_empty() {
           split_select_txt.append(&mut self_list);
@@ -259,11 +263,11 @@ impl NewSelector {
         }
       }
     }
-
+    
     // 最终结果
     Ok(split_select_txt)
   }
-
+  
   ///
   /// 打印错误信息
   ///
@@ -282,7 +286,7 @@ impl NewSelector {
       error_loc.col
     ))
   }
-
+  
   ///
   /// 在二维数组 的最后 追加 词
   /// 需要在 连接词 前后适当 保持 1个 空格！
@@ -329,7 +333,7 @@ impl NewSelector {
       }
     }
   }
-
+  
   ///
   /// 最后一组词 的 最后一位 非空
   /// 逗号情况 调用
@@ -361,14 +365,14 @@ impl NewSelector {
       Err(self.errormsg(index).err().unwrap())
     }
   }
-
+  
   ///
   /// 在二维数组中 开辟 一组 新词 序列
   ///
   pub fn add_paradigm_vec(&mut self) {
     self.paradigm_vec.push(vec![]);
   }
-
+  
   ///
   /// 获取 最后 词
   ///
@@ -378,7 +382,7 @@ impl NewSelector {
     }
     None
   }
-
+  
   ///
   /// 获取 最后 非空格 词
   ///
@@ -396,7 +400,7 @@ impl NewSelector {
       None
     }
   }
-
+  
   ///
   /// 是否 停词 的判断
   ///
@@ -426,7 +430,7 @@ impl NewSelector {
       false
     }
   }
-
+  
   ///
   /// parse select txt
   /// https://www.w3schools.com/cssref/css_selectors.asp
@@ -438,17 +442,27 @@ impl NewSelector {
       self.pure_select_txt(parent_node)?;
     }
     let charlist = &self.charlist.clone();
-
+    
     let (_, end) = traversal(
       Some(index),
       charlist,
       &mut (|arg, charword| {
         let (index, _, _) = arg;
         let (_, char, _) = charword;
-
+        
         if Token::is_token(Some(char)) {
           if TokenSelectChar::is(char) {
-            // example a, li , h2
+            // if mixin
+            if char == &'(' {
+              if let Some(last_wrap_group) = self.paradigm_vec.last() {
+                if let Some(SelectParadigm::SelectWrap(last_wrap)) = last_wrap_group.last() {
+                  if last_wrap.chars().nth(0) == Some('.') || last_wrap.chars().nth(0) == Some('#') {
+                    self.parse_selector_mixin(last_wrap.clone().as_str(), index)?;
+                  }
+                }
+              }
+            }
+            // example .abc, #id
             let (select_word, end) = self.parse_selector_word(index)?;
             self.add_paradigm(SelectParadigm::SelectWrap(select_word));
             *index = end;
@@ -484,7 +498,7 @@ impl NewSelector {
     self.clear_paraigm(&end)?;
     Ok(())
   }
-
+  
   ///
   /// parse @
   /// example -> @keyframes identifierb || @font-face
@@ -518,7 +532,7 @@ impl NewSelector {
       }),
     )
   }
-
+  
   ///
   /// 连接词的处理
   ///
@@ -552,7 +566,7 @@ impl NewSelector {
     }
     Ok((char.to_string(), *index))
   }
-
+  
   ///
   /// parse select word
   ///
@@ -577,7 +591,7 @@ impl NewSelector {
     }
     Ok(res)
   }
-
+  
   ///
   /// parse example h2 span div
   ///
@@ -604,7 +618,7 @@ impl NewSelector {
       }),
     )
   }
-
+  
   ///
   /// parse example #h2 .abc
   ///
@@ -641,7 +655,7 @@ impl NewSelector {
       }),
     )
   }
-
+  
   ///
   /// parse example ::hide :next
   ///
@@ -690,7 +704,7 @@ impl NewSelector {
       }),
     )
   }
-
+  
   ///
   /// parse example (language)
   ///
@@ -741,7 +755,7 @@ impl NewSelector {
     }
     Ok(res)
   }
-
+  
   ///
   /// parse example '[arco-theme='dark']'
   ///
@@ -751,7 +765,7 @@ impl NewSelector {
     let mut hasequal = false;
     let mut has_brackest = false;
     let mut queto: Option<char> = None;
-
+    
     let res = traversal(
       Some(*start),
       &self.charlist,
@@ -770,7 +784,7 @@ impl NewSelector {
           }
           res
         };
-
+        
         if let Some(token_queto) = queto {
           if has_brackest {
             if *char == token_queto && prev != Some(&'\\') {
@@ -843,7 +857,7 @@ impl NewSelector {
     }
     Ok(res)
   }
-
+  
   ///
   /// support var in select_txt
   /// like @{abc} .a{  .... }
@@ -885,7 +899,7 @@ impl NewSelector {
         Ok(())
       }),
     )?;
-
+    
     let mut new_content = "".to_string();
     if !list.is_empty() {
       for tt in list {
@@ -899,16 +913,16 @@ impl NewSelector {
             parent_node.clone(),
             self.fileinfo.clone(),
           )?;
-
+          
           new_content += &var_node_value.code_gen()?;
         }
       }
       self.charlist = new_content.to_char_vec();
     }
-
+    
     Ok(())
   }
-
+  
   ///
   /// 查找变量
   /// 用于 (变量计算)
@@ -957,7 +971,7 @@ impl NewSelector {
         }
       }
     };
-
+    
     Err(format!("no var key {} has found", key))
   }
 }
